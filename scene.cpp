@@ -27,6 +27,9 @@ void Scene::render(Image& image)
 	float intensity_sum = 0;
 	float Id = 0, Is = 0;
 
+	Vector3 shadow_check_intersect_point(0, 0, 0);
+	Vector3 shadow_check_normal(0, 0, 0);
+
 	//to normalize the colors
 	list<float> red_values;
 	list<float> green_values;
@@ -49,8 +52,31 @@ void Scene::render(Image& image)
 					//calculate color for all lights
 					for (PointLight& light : pointLights)
 					{
-						//diffusion
 						light.at(intersection_point, light_dir, light_intensity);
+
+						//check the shadows
+						bool on_shadow = false;
+						Ray shadow_veirfier(light.position, light_dir);
+						for (Object& obj2 : objects) {
+							if (obj2.center.x != obj.center.x && obj2.center.y != obj.center.y && obj2.center.z != obj.center.z) //check if same object
+							{
+								if (obj2.intersect(shadow_veirfier, shadow_check_intersect_point, shadow_check_normal) \
+									&& (shadow_check_intersect_point - light.position).length() < (intersection_point - light.position).length())
+								{
+									on_shadow = true;
+									cout << "on shadow ";
+								}
+							}
+						}
+
+						if (on_shadow)
+						{
+							image.pixels[i][j] = Vector3(0, 0, 0);
+							continue;
+						}
+
+						//light calculation
+						//diffusion
 						Id = obj.m_params.kd * (normal*light_dir.normalized()) * light_intensity.length();
 
 						//specular
@@ -68,7 +94,7 @@ void Scene::render(Image& image)
 					red_values.push_back(image.pixels[i][j].x);
 					green_values.push_back(image.pixels[i][j].y);
 					blue_values.push_back(image.pixels[i][j].z);
-					cout << (light_intensity / 255) << " ";
+					//cout << (light_intensity / 255) << " ";
 				}
 			}
 		}
