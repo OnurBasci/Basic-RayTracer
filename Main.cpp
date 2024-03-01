@@ -57,24 +57,31 @@ int main(void)
 
     o.intersect(r);*/
 
-    /*
+
     //define the scene
     float numpixelX = 100;//increase these for smoothness
     float numpixelY = 100;
     Camera camera(1, Vector3(0, 0, 0), Vector3(5, 0, 0), Vector3(0, 1, 0), 4, 4, numpixelX, numpixelY);
 
+    PointLight light1(Vector3(1, 1, 1), Vector3(255, 255, 255), 20);
+    //PointLight light2(Vector3(-1, 1, 1), Vector3(255, 255, 255), 20);
+
+    list<PointLight> lights;
+    lights.push_back(light1);
+    //lights.push_back(light2);
+
     list<Object> objects;
 
-    objects.push_back(Object(Vector3(-4, 3, -7), 3, Vector3(0, 255, 0)));
-    objects.push_back(Object(Vector3(0, 0, -7), 5, Vector3(255, 0, 0)));
+    objects.push_back(Object(Vector3(-4, 3, -7), 3, Vector3(0, 255, 0), MaterialParameters(1,0.5)));
+    objects.push_back(Object(Vector3(0, 0, -7), 5, Vector3(255, 0, 0), MaterialParameters(20,0.4)));
     
     Image image(numpixelX, numpixelY);
 
-    Scene scene(camera, objects);
+    Scene scene(camera, objects, lights);
 
     scene.render(image);
-    image.write("first render.ppm");
-    */
+    image.write("render.ppm");
+   
 
     return 0;
 }

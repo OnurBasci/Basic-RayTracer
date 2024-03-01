@@ -13,13 +13,11 @@ Image::Image(int w, int h)
     width = w;
     height = h;
 
-    Vector3 basicVector = Vector3(0, 0, 0);
-
     for (int i = 0; i < height; i++)
     {
         for (int j = 0; j < width; j++)
         {
-            pixels[i][j] = basicVector;
+            pixels[i][j] = bg_color;
         }
     }
 };

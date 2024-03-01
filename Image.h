@@ -10,6 +10,8 @@ public:
 	int width, height;
 	Vector3 pixels[TAILLE_MAX][TAILLE_MAX];
 
+	Vector3 bg_color = Vector3(86, 29, 219);
+
 	Image(int width, int height);
 
 	bool write(const std::string& filename) const;
