@@ -52,10 +52,10 @@ int main(void)
     
     //image.write("imagefile2.ppm");
 
-    //define the scene   Z FORWARD Y RIGHT X UPWARD
+    //define the scene    X UPWARD Y RIGHT Z FORWARD 
     float numpixelX = 200;//increase these for smoothness
     float numpixelY = 200;
-    Camera camera(1, Vector3(0, 0, 0), Vector3(1, 0, 0), Vector3(0, 1, 0), 16, 16, numpixelX, numpixelY);
+    Camera camera(1, Vector3(0, 0, 0), Vector3(0, 0, 1), Vector3(0, 1, 0), 16, 16, numpixelX, numpixelY);
 
     PointLight light1(Vector3(3, -4, 1), Vector3(255, 255, 255), 20);
     //PointLight light2(Vector3(-1, 1, 1), Vector3(255, 255, 255), 20);
@@ -66,8 +66,8 @@ int main(void)
 
     list<Object> objects;
 
-    objects.push_back(Object(Vector3(-3, 2, -7), 3, Vector3(0, 255, 0), MaterialParameters(1,0.5)));
-    objects.push_back(Object(Vector3(2, -2, -7), 4, Vector3(255, 0, 0), MaterialParameters(20,0.4)));
+    objects.push_back(Object(Vector3(-3, 2, 7), 3, Vector3(0, 255, 0), MaterialParameters(1,0.5)));
+    objects.push_back(Object(Vector3(2, -1, 7), 4, Vector3(255, 0, 0), MaterialParameters(20,0.4)));
     
     Image image(numpixelX, numpixelY);
 

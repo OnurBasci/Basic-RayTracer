@@ -15,6 +15,7 @@ Scene::Scene(list<Object> objects, list<PointLight> ligths)
 	this->pointLights = ligths;
 }
 
+float getMax(const std::list<float>& values);
 
 void Scene::render(Image& image)
 {
@@ -101,9 +102,9 @@ void Scene::render(Image& image)
 	}
 
 	//normilize the pixel colors
-	float max_red = *max_element(red_values.begin(), red_values.end());
-	float max_green = *max_element(green_values.begin(), green_values.end());
-	float max_blue = *max_element(blue_values.begin(), blue_values.end());
+	float max_red = getMax(red_values);
+	float max_green = getMax(green_values);
+	float max_blue = getMax(blue_values);
 	for (int i = 0; i < image.width; i++)
 	{
 		for (int j = 0; j < image.height; j++)
@@ -115,5 +116,14 @@ void Scene::render(Image& image)
 			float scaled_blue = (max_blue != 0) ? (1 - ((max_blue - image.pixels[i][j].z) / max_blue))*255 : 0;
 			image.pixels[i][j] = Vector3(scaled_red, scaled_green, scaled_blue);
 		}
+	}
+}
+
+float getMax(const std::list<float>& values) {
+	if (values.empty()) {
+		return 0;
+	}
+	else {
+		return *std::max_element(values.begin(), values.end());
 	}
 }

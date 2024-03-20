@@ -12,13 +12,13 @@ Camera::Camera(double _focal_length, const Vector3& _position, const Vector3& _t
     right = forward.crossProduct(up_vector).normalized();
     up = right.crossProduct(forward).normalized();
 
-    Vector3 viewport_u(viewport_width, 0, 0);
-    Vector3 viewport_v(0, -viewport_height, 0);
+    Vector3 viewport_u = right * viewport_width;
+    Vector3 viewport_v = up * -viewport_height; //viewport height is negatif since we go from top to down
 
     pixel_delta_u = viewport_u/image_width;
     pixel_delta_v = viewport_v/image_height;
 
-    Vector3 viewport_upper_left = _position - Vector3(0, 0, focal_length)
+    Vector3 viewport_upper_left = _position + forward * focal_length 
         - viewport_u / 2 - viewport_v/2;
 
     pixel00_loc = viewport_upper_left + (pixel_delta_u + pixel_delta_v) * 0.5;
