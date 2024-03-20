@@ -45,19 +45,25 @@ int main(void)
     }
 
     glfwTerminate();
-    
     */
+
 
     //Image image(10,10);
     
     //image.write("imagefile2.ppm");
 
-    //define the scene   Z FORWARD Y RIGHT X UPWARD
+    /*Ray r(Vector3(0, 0, 0), Vector3(1, 0, 0));
+    Object o(Vector3(5, 1, 0), 1);
+
+    o.intersect(r);*/
+
+
+    //define the scene
     float numpixelX = 200;//increase these for smoothness
     float numpixelY = 200;
-    Camera camera(1, Vector3(0, 0, 0), Vector3(1, 0, 0), Vector3(0, 1, 0), 16, 16, numpixelX, numpixelY);
+    Camera camera(1, Vector3(0, 0, 0), Vector3(5, 0, 0), Vector3(0, 1, 0), 4, 4, numpixelX, numpixelY);
 
-    PointLight light1(Vector3(3, -4, 1), Vector3(255, 255, 255), 20);
+    PointLight light1(Vector3(1, -1, 1), Vector3(255, 255, 255), 20);
     //PointLight light2(Vector3(-1, 1, 1), Vector3(255, 255, 255), 20);
 
     list<PointLight> lights;
@@ -66,8 +72,8 @@ int main(void)
 
     list<Object> objects;
 
-    objects.push_back(Object(Vector3(-3, 2, -7), 3, Vector3(0, 255, 0), MaterialParameters(1,0.5)));
-    objects.push_back(Object(Vector3(2, -2, -7), 4, Vector3(255, 0, 0), MaterialParameters(20,0.4)));
+    objects.push_back(Object(Vector3(-4, 3, -9), 5, Vector3(0, 255, 0), MaterialParameters(1,0.5)));
+    objects.push_back(Object(Vector3(0, 0, -7), 5, Vector3(255, 0, 0), MaterialParameters(20,0.4)));
     
     Image image(numpixelX, numpixelY);
 
@@ -76,8 +82,6 @@ int main(void)
     scene.render(image);
     image.write("render.ppm");
    
-    
 
     return 0;
 }
-

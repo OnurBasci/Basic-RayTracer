@@ -32,8 +32,7 @@ Ray Camera::pixelToRay(int pixelX, int pixelY) const {
     Vector3 direction_camera = (forward * focal_length) + right * sensor_x + up * sensor_y;*/
 
     Vector3 pixel_center = pixel00_loc + (pixel_delta_u*pixelX) + (pixel_delta_v*pixelY);
-    Vector3 rayStartPosition(pixel_center.x, pixel_center.y, 0); //send horizontal rays
-    Vector3 ray_direction = pixel_center - rayStartPosition;
+    Vector3 ray_direction = pixel_center - position;
 
-    return Ray(rayStartPosition, ray_direction.normalized());
+    return Ray(position, ray_direction.normalized());
 }

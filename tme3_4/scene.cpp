@@ -58,7 +58,7 @@ void Scene::render(Image& image)
 						bool on_shadow = false;
 						Ray shadow_veirfier(light.position, light_dir);
 						for (Object& obj2 : objects) {
-							if (&obj2 != &obj) //check if same object
+							if (obj2.center.x != obj.center.x && obj2.center.y != obj.center.y && obj2.center.z != obj.center.z) //check if same object
 							{
 								if (obj2.intersect(shadow_veirfier, shadow_check_intersect_point, shadow_check_normal) \
 									&& (shadow_check_intersect_point - light.position).length() < (intersection_point - light.position).length())
