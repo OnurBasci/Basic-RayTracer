@@ -4,7 +4,8 @@
 #include"Image.h"
 #include"Vector3.h"
 #include"Ray.h"
-#include"Object.h"
+#include"Sphere.h"
+#include"Plane.h"
 #include"Camera.h"
 #include"Scene.h"
 #include"PointLight.h"
@@ -64,10 +65,12 @@ int main(void)
     lights.push_back(light1);
     //lights.push_back(light2);
 
-    list<Object> objects;
+    list<Object*> objects;
 
-    objects.push_back(Object(Vector3(-3, 2, 7), 3, Vector3(0, 255, 0), MaterialParameters(1,0.5)));
-    objects.push_back(Object(Vector3(2, -1, 7), 4, Vector3(255, 0, 0), MaterialParameters(20,0.4)));
+    objects.push_back(new Plane(Vector3(0, 0, 7), Vector3(0, 0, 1), Vector3(255, 0, 255), MaterialParameters(1, 0.5)));
+
+    //objects.push_back(new Sphere(Vector3(-3, 2, 7), 3, Vector3(0, 255, 0), MaterialParameters(1,0.5)));
+    //objects.push_back(new Sphere(Vector3(2, -1, 7), 4, Vector3(255, 0, 0), MaterialParameters(20,0.4)));
     
     Image image(numpixelX, numpixelY);
 
@@ -77,6 +80,11 @@ int main(void)
     image.write("render.ppm");
    
     
+    //Dealocate the memory
+    for (Object* obj: objects)
+    {
+        delete obj;
+    }
 
     return 0;
 }

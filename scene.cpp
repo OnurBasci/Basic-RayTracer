@@ -3,13 +3,13 @@
 #include<list>
 using namespace std;
 
-Scene::Scene(Camera camera, list<Object> objects, list<PointLight> ligths){
+Scene::Scene(Camera camera, list<Object*> objects, list<PointLight> ligths){
 	this->camera = camera;
 	this->objects = objects;
 	this->pointLights = ligths;
 }
 
-Scene::Scene(list<Object> objects, list<PointLight> ligths)
+Scene::Scene(list<Object*> objects, list<PointLight> ligths)
 {
 	this->objects = objects;
 	this->pointLights = ligths;
@@ -45,10 +45,11 @@ void Scene::render(Image& image)
 			//cout << ray.direction << " ";
 
 			//Check intersection for all objects
-			for (Object& obj : objects) {
+			for (Object* obj : objects) {
 
-				if (obj.intersect(ray, intersection_point, normal))
+				if (obj->intersect(ray, intersection_point, normal))
 				{
+					//cout << intersection_point;
 					intensity_sum = 0;
 					//calculate color for all lights
 					for (PointLight& light : pointLights)
@@ -58,10 +59,10 @@ void Scene::render(Image& image)
 						//check the shadows
 						bool on_shadow = false;
 						Ray shadow_veirfier(light.position, light_dir);
-						for (Object& obj2 : objects) {
-							if (&obj2 != &obj) //check if same object
+						for (Object* obj2 : objects) {
+							if (obj2 != obj) //check if same object
 							{
-								if (obj2.intersect(shadow_veirfier, shadow_check_intersect_point, shadow_check_normal) \
+								if (obj2->intersect(shadow_veirfier, shadow_check_intersect_point, shadow_check_normal) \
 									&& (shadow_check_intersect_point - light.position).length() < (intersection_point - light.position).length())
 								{
 									on_shadow = true;
@@ -77,12 +78,12 @@ void Scene::render(Image& image)
 
 						//light calculation
 						//diffusion
-						Id = obj.m_params.kd * (normal*light_dir.normalized()) * light_intensity.length();
+						Id = obj->m_params.kd * (normal*light_dir.normalized()) * light_intensity.length();
 
 						//specular
 						Vector3 I = ray.direction.normalized();
 						Vector3 S = I - normal * 2 * (I * normal);
-						Is = obj.m_params.ks * light_intensity.length() * (S * light_dir.normalized());
+						Is = obj->m_params.ks * light_intensity.length() * (S * light_dir.normalized());
 
 						intensity_sum += Id + Is;
 					}
@@ -90,7 +91,7 @@ void Scene::render(Image& image)
 					//if (intensity_sum > 1) intensity_sum = 1;
 					//else if (intensity_sum < 0) intensity_sum = 0;
 					//update the pixel color
-					image.pixels[i][j] = obj.color * intensity_sum;
+					image.pixels[i][j] = obj->color * intensity_sum;
 					red_values.push_back(image.pixels[i][j].x);
 					green_values.push_back(image.pixels[i][j].y);
 					blue_values.push_back(image.pixels[i][j].z);
