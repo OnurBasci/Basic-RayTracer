@@ -65,7 +65,6 @@ void Scene::render(Image& image)
 									&& (shadow_check_intersect_point - light.position).length() < (intersection_point - light.position).length())
 								{
 									on_shadow = true;
-									cout << "on shadow ";
 								}
 							}
 						}
