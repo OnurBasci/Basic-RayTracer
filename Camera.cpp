@@ -8,9 +8,9 @@ Camera::Camera(double _focal_length, const Vector3& _position, const Vector3& _t
     focal_length(_focal_length), position(_position), target_point(_target_point), up_vector(_up_vector),
     viewport_height(v_height), viewport_width(v_width),  image_width(i_width), image_height(i_height) {
 
+    up = _up_vector.normalized();
     forward = (target_point - position).normalized();
-    right = forward.crossProduct(up_vector).normalized();
-    up = right.crossProduct(forward).normalized();
+    right = forward.crossProduct(up_vector).normalized()*-1;
 
     Vector3 viewport_u = right * viewport_width;
     Vector3 viewport_v = up * -viewport_height; //viewport height is negatif since we go from top to down
@@ -33,8 +33,14 @@ Ray Camera::pixelToRay(int pixelX, int pixelY) const {
 
     Vector3 pixel_center = pixel00_loc + (pixel_delta_u*pixelX) + (pixel_delta_v*pixelY);
     Vector3 rayStartPosition = pixel_center - forward * focal_length;
-    //Vector3 rayStartPosition(pixel_center.x, pixel_center.y, 0); //send horizontal rays
-    //Vector3 ray_direction = pixel_center - rayStartPosition;
 
+    //ortographic camera
+    /*
+    Vector3 ray_direction = pixel_center - rayStartPosition;
     return Ray(rayStartPosition, forward.normalized());
+    */
+    //perspective camera
+    Vector3 ray_direction = pixel_center - position;
+
+    return Ray(position, ray_direction.normalized());
 }

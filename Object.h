@@ -19,6 +19,7 @@ public:
 	Vector3 color;
 
 	Object(Vector3 center, Vector3 color, MaterialParameters m_params);
+	Object();
 
 	//an abstract class that depends on the geometry of the object
 	virtual bool intersect(const Ray& ray, Vector3& intersection_point, Vector3& normal) = 0;

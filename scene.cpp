@@ -3,13 +3,13 @@
 #include<list>
 using namespace std;
 
-Scene::Scene(Camera camera, list<Object*> objects, list<PointLight> ligths){
+Scene::Scene(Camera camera, list<Object*> objects, list<Light*> ligths){
 	this->camera = camera;
 	this->objects = objects;
 	this->pointLights = ligths;
 }
 
-Scene::Scene(list<Object*> objects, list<PointLight> ligths)
+Scene::Scene(list<Object*> objects, list<Light*> ligths)
 {
 	this->objects = objects;
 	this->pointLights = ligths;
@@ -52,20 +52,21 @@ void Scene::render(Image& image)
 					//cout << intersection_point;
 					intensity_sum = 0;
 					//calculate color for all lights
-					for (PointLight& light : pointLights)
+					for (Light* light : pointLights)
 					{
-						light.at(intersection_point, light_dir, light_intensity);
+						light->at(intersection_point, light_dir, light_intensity);
 
 						//check the shadows
 						bool on_shadow = false;
-						Ray shadow_veirfier(light.position, light_dir);
+						Ray shadow_veirfier(light->position, light_dir);
 						for (Object* obj2 : objects) {
 							if (obj2 != obj) //check if same object
 							{
 								if (obj2->intersect(shadow_veirfier, shadow_check_intersect_point, shadow_check_normal) \
-									&& (shadow_check_intersect_point - light.position).length() < (intersection_point - light.position).length())
+									&& (shadow_check_intersect_point - light->position).length() < (intersection_point - light->position).length())
 								{
 									on_shadow = true;
+									std::cout << "On shadow";
 								}
 							}
 						}
@@ -111,9 +112,9 @@ void Scene::render(Image& image)
 		{
 			if (image.pixels[i][j].x == image.bg_color.x && image.pixels[i][j].y == image.bg_color.y && image.pixels[i][j].z == image.bg_color.z)
 				continue;
-			float scaled_red = (max_red != 0) ? (1 - ((max_red - image.pixels[i][j].x) / max_red))*255 : 0;
-			float scaled_green = (max_green != 0) ? (1 - ((max_green - image.pixels[i][j].y) / max_green))*255 : 0;
-			float scaled_blue = (max_blue != 0) ? (1 - ((max_blue - image.pixels[i][j].z) / max_blue))*255 : 0;
+			float scaled_red = (max_red > 0) ? (1 - ((max_red - image.pixels[i][j].x) / max_red))*255 : 0;
+			float scaled_green = (max_green > 0) ? (1 - ((max_green - image.pixels[i][j].y) / max_green))*255 : 0;
+			float scaled_blue = (max_blue > 0) ? (1 - ((max_blue - image.pixels[i][j].z) / max_blue))*255 : 0;
 			image.pixels[i][j] = Vector3(scaled_red, scaled_green, scaled_blue);
 		}
 	}
