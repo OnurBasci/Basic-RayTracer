@@ -11,6 +11,8 @@
 #include"PointLight.h"
 #include"Triangle.h"
 #include"Rectangle.h"
+#include"DeepShadowMap.h"
+#include"ShadowCell.h"
 
 using namespace std;
 
@@ -49,7 +51,7 @@ int main(void)
     Vector3 p3(-2, 2, 20);
     objects.push_back(new Rectangle(p1, p2, p3, Vector3(255, 0, 255), MaterialParameters(1, 0.5)));*/
     
-    //define boxs
+    //BOX SCENE
     //box 1
     Vector3 box1Center(-2, 0, 11);
     float width = 0.2;
@@ -143,13 +145,18 @@ int main(void)
     objects.push_back(rect3);
     objects.push_back(rect2);
 
-
+    //SPHERES
     //objects.push_back(new Sphere(Vector3(0, 0, 11), 1, Vector3(0, 255, 0), MaterialParameters(1,0.5)));
     //objects.push_back(new Sphere(Vector3(2, -1, 7), 4, Vector3(255, 0, 0), MaterialParameters(20,0.4)));
     
     Image image(numpixelX, numpixelY);
 
     Scene scene(camera, objects, lights);
+
+    //DEFINE THE DEEPSHADOWMAP
+    DeepShadowMap deepShadowMap(1, light1->position, Vector3(-1, 0, 0), Vector3(-1, 0, 0), 1, 1, 16);
+    deepShadowMap.shadowCells[0].CalculateSurfaceTransmittanceFunctions();
+    //std::cout << deepShadowMap.shadowCells[0].surfaceTransmittance[0][0];
 
     scene.render(image);
     image.write("render.ppm");

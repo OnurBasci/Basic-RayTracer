@@ -6,9 +6,11 @@
 struct MaterialParameters {
 	float kd; // diffusion coefficient
 	float ks; // specularity coefficient
+	float opacity;
 
-	MaterialParameters() : kd(1), ks(1) {}
-	MaterialParameters(float kd, float ks) : kd(kd), ks(ks) {};
+	MaterialParameters() : kd(1), ks(1), opacity(1) {}
+	MaterialParameters(float kd, float ks) : kd(kd), ks(ks), opacity(1) {};
+	MaterialParameters(float kd, float ks, float opacity) : kd(kd), ks(ks), opacity(opacity) {};
 };
 
 //This is an abstract class that contains commun methods for each object
