@@ -19,12 +19,14 @@ public:
 	int functionSize; //the number of element that surface transmittance function can have
 	vector<vector<float>> hitDepths; //Data structure containing the depth value for each of the sample
 	vector<vector<float>> surfaceTransmittance;
-	float* visibilityFunction = nullptr; //the function that contains the visibilty information
+	vector<float> visibilityFunction; //the function that contains the visibilty information
+	vector<float> hitDepthsForvisibility; //Data structure containing the depth value for each of the sample of each transmittance functions
 	DeepShadowMap* belongingShadowMap;
 
 	ShadowCell(int index_i, int index_j, int sampleNumber, DeepShadowMap* belongingShadowMap);
-	~ShadowCell();
 
 	void CalculateSurfaceTransmittanceFunctions();
 	void CalculateSurfaceTransmittanceFunctionFromARay(int sampleIndex, Ray ray, list<Object*> objects);
+
+	void CalculateVolumeFunction();
 };

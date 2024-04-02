@@ -3,6 +3,7 @@
 #include<vector>
 #include"Vector3.h"
 #include"Object.h"
+#include"Rectangle.h"
 //#include"ShadowCell.h"
 
 using namespace std;
@@ -27,6 +28,8 @@ public:
     float mapResolution;
     Vector3 pixel_delta_u, pixel_delta_v;
     vector<ShadowCell> shadowCells;
+    //Rectangle mapRectangle; //This is a rectangle wich helps us to find the corresponding volume function index via an intersection calculation
+    
 
     DeepShadowMap() = default;
 

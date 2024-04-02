@@ -51,17 +51,10 @@ void ShadowCell::CalculateSurfaceTransmittanceFunctionFromARay(int sampleIndex, 
 	//deine a float2 vector to stock depth and corrsponding objects obacity to later sort them by the depth and calculate transmittance
 	vector<depthOpacity> depthOpacVector;
 
-	//std::cout << "Index is " << sampleIndex << "\n";
-	//std::cout << "Origin is " << ray.center << "\n";
-	//std::cout << "Direction is " << ray.direction << "\n";
-	//find all of the intersections and stock the depth and opacity informations
-
 	for (Object* obj : objects)
 	{
 		if (obj->intersect(ray, intersectionPoint, normal))
 		{
-			//std::cout << "there is a hit and the object id is" << obj->id << " opacity is " << obj->m_params.opacity << "\n";
-
 			float depth = (intersectionPoint - ray.center).length();
 			//update the transmittance
 			depthOpacVector.push_back(depthOpacity(depth, obj->m_params.opacity));
@@ -74,20 +67,35 @@ void ShadowCell::CalculateSurfaceTransmittanceFunctionFromARay(int sampleIndex, 
 	//calculate transmittance function
 	//the transmittance start by 1
 	surfaceTransmittance[sampleIndex].push_back(1);
-	//int counter = 0;
-	//cout << "trasmittance function [" << surfaceTransmittance[sampleIndex][counter] << " ";
+	cout << "transmitance function for " << sampleIndex << " [";
 	for (depthOpacity elem : depthOpacVector)
 	{
 		//cout << "opacity " << (1 - elem.opacity) << " ";
 		float nextTransmittance = surfaceTransmittance[sampleIndex].back() * (1-elem.opacity);
 		surfaceTransmittance[sampleIndex].push_back(nextTransmittance);
 		hitDepths[sampleIndex].push_back(elem.depth);
-		//cout << hitDepths[sampleIndex][counter] << " ";
-		//counter += 1;
+		cout << hitDepths[sampleIndex].back() << " ";
 	}
-	//cout << "]\n";
+	cout << "]\n";
 }
 
-ShadowCell::~ShadowCell() {
-	delete[] visibilityFunction;
+void ShadowCell::CalculateVolumeFunction()
+{
+	//This function calculates the volume function by averaging transmittance functions
+
+	//Naif implementation merge vectors and sort them
+	for (int i = 0; i < sampleNumber-1; i++)
+	{
+		hitDepthsForvisibility.insert(hitDepthsForvisibility.end(), hitDepths[i+1].begin(), hitDepths[i+1].end());
+		visibilityFunction.insert(visibilityFunction.end(), surfaceTransmittance[i + 1].begin(), surfaceTransmittance[i+1].end());
+	}
+
+	sort(hitDepthsForvisibility.begin(), hitDepthsForvisibility.end());
+	sort(visibilityFunction.begin(), visibilityFunction.end());
+
+	cout << "hit depth for visibility: ";
+	for (int i = 0; i < hitDepthsForvisibility.size(); i++)
+	{
+		cout << hitDepthsForvisibility[i] << " ";
+	}
 }
