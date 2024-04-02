@@ -19,6 +19,7 @@ public:
 	Vector3 center;
 	MaterialParameters m_params;
 	Vector3 color;
+	int id = -1;
 
 	Object(Vector3 center, Vector3 color, MaterialParameters m_params);
 	Object();

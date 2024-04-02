@@ -63,21 +63,24 @@ int main(void)
     Vector3 p2(box1Center.x-width, box1Center.y- height, box1Center.z+ depth);
     Vector3 p3(box1Center.x-width, box1Center.y+ height, box1Center.z- depth);
 
-    Rectangle* rect1 = new Rectangle(p1, p2, p3, color, MaterialParameters(1, 0.5));
+    Rectangle* rect1 = new Rectangle(p1, p2, p3, color, MaterialParameters(1, 0.5, 0.1));
+    rect1->id = 1;
 
     //rectangle 2
     Vector3 p21(box1Center.x - width, box1Center.y - height, box1Center.z - depth);
     Vector3 p22(box1Center.x - width, box1Center.y + height, box1Center.z - depth);
     Vector3 p23(box1Center.x + width, box1Center.y - height, box1Center.z - depth);
 
-    Rectangle* rect2 = new Rectangle(p21, p22, p23, color, MaterialParameters(1, 0.5));
+    Rectangle* rect2 = new Rectangle(p21, p22, p23, color, MaterialParameters(1, 0.5, 0.1));
+    rect2->id = 1;
 
     //rectangle 3
     Vector3 p31(box1Center.x + width, box1Center.y - height, box1Center.z - depth);
     Vector3 p32(box1Center.x + width, box1Center.y + height, box1Center.z - depth);
     Vector3 p33(box1Center.x + width, box1Center.y - height, box1Center.z + depth);
 
-    Rectangle* rect3 = new Rectangle(p31, p32, p33, color, MaterialParameters(1, 0.5));
+    Rectangle* rect3 = new Rectangle(p31, p32, p33, color, MaterialParameters(1, 0.5, 0.1));
+    rect3->id = 1;
 
     objects.push_back(rect1);
     objects.push_back(rect3);
@@ -94,21 +97,24 @@ int main(void)
     p2 = Vector3(box1Center.x - width, box1Center.y - height, box1Center.z + depth);
     p3 = Vector3(box1Center.x - width, box1Center.y + height, box1Center.z - depth);
 
-    rect1 = new Rectangle(p1, p2, p3, color, MaterialParameters(1, 0.5));
+    rect1 = new Rectangle(p1, p2, p3, color, MaterialParameters(1, 0.5, 0.2));
+    rect1->id = 2;
 
     //rectangle 2
     p21 = Vector3(box1Center.x - width, box1Center.y - height, box1Center.z - depth);
     p22 = Vector3(box1Center.x - width, box1Center.y + height, box1Center.z - depth);
     p23 = Vector3(box1Center.x + width, box1Center.y - height, box1Center.z - depth);
 
-    rect2 = new Rectangle(p21, p22, p23, color, MaterialParameters(1, 0.5));
+    rect2 = new Rectangle(p21, p22, p23, color, MaterialParameters(1, 0.5, 0.2));
+    rect2->id = 2;
 
     //rectangle 3
     p31 = Vector3(box1Center.x + width, box1Center.y - height, box1Center.z - depth);
     p32 = Vector3(box1Center.x + width, box1Center.y + height, box1Center.z - depth);
     p33 = Vector3(box1Center.x + width, box1Center.y - height, box1Center.z + depth);
 
-    rect3 = new Rectangle(p31, p32, p33, color, MaterialParameters(1, 0.5));
+    rect3 = new Rectangle(p31, p32, p33, color, MaterialParameters(1, 0.5, 0.2));
+    rect3->id = 2;
 
     objects.push_back(rect1);
     objects.push_back(rect3);
@@ -125,21 +131,24 @@ int main(void)
     p2 = Vector3(box1Center.x - width, box1Center.y - height, box1Center.z + depth);
     p3 = Vector3(box1Center.x - width, box1Center.y + height, box1Center.z - depth);
 
-    rect1 = new Rectangle(p1, p2, p3, color, MaterialParameters(1, 0.5));
+    rect1 = new Rectangle(p1, p2, p3, color, MaterialParameters(1, 0.5, 0.3));
+    rect1->id = 3;
 
     //rectangle 2
     p21 = Vector3(box1Center.x - width, box1Center.y - height, box1Center.z - depth);
     p22 = Vector3(box1Center.x - width, box1Center.y + height, box1Center.z - depth);
     p23 = Vector3(box1Center.x + width, box1Center.y - height, box1Center.z - depth);
 
-    rect2 = new Rectangle(p21, p22, p23, color, MaterialParameters(1, 0.5));
+    rect2 = new Rectangle(p21, p22, p23, color, MaterialParameters(1, 0.5, 0.3));
+    rect2->id = 3;
 
     //rectangle 3
     p31 = Vector3(box1Center.x + width, box1Center.y - height, box1Center.z - depth);
     p32 = Vector3(box1Center.x + width, box1Center.y + height, box1Center.z - depth);
     p33 = Vector3(box1Center.x + width, box1Center.y - height, box1Center.z + depth);
 
-    rect3 = new Rectangle(p31, p32, p33, color, MaterialParameters(1, 0.5));
+    rect3 = new Rectangle(p31, p32, p33, color, MaterialParameters(1, 0.5, 0.3));
+    rect3->id = 3;
 
     objects.push_back(rect1);
     objects.push_back(rect3);
@@ -155,7 +164,8 @@ int main(void)
 
     //DEFINE THE DEEPSHADOWMAP
     DeepShadowMap deepShadowMap(objects, 1, light1->position, Vector3(-2, 0, 11), Vector3(0, 1, 0), 1, 1, 16);
-    deepShadowMap.shadowCells[136].CalculateSurfaceTransmittanceFunctions();
+    //deepShadowMap.shadowCells[7].CalculateSurfaceTransmittanceFunctions();
+    deepShadowMap.shadowCells[135].CalculateSurfaceTransmittanceFunctions();
     //std::cout << deepShadowMap.shadowCells[0].surfaceTransmittance[0][0];
 
     scene.render(image);

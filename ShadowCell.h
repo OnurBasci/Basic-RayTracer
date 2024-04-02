@@ -2,7 +2,6 @@
 #include<vector>
 #include<list>
 #include"Vector3.h"
-//#include"DeepShadowMap.h"
 #include"Ray.h"
 #include"Object.h"
 
