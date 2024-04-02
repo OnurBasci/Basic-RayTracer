@@ -30,6 +30,6 @@ public:
 
     DeepShadowMap() = default;
 
-    DeepShadowMap(double _focal_length, const Vector3& _position, const Vector3& _target_point, const Vector3& _up_vector, \
+    DeepShadowMap(list<Object*> objects, double _focal_length, const Vector3& _position, const Vector3& _target_point, const Vector3& _up_vector, \
         float v_width, float v_height, float mapResolution);
 };

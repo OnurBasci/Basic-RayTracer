@@ -1,10 +1,12 @@
 #include"DeepShadowMap.h"
 #include"ShadowCell.h"
 
-DeepShadowMap::DeepShadowMap(double _focal_length, const Vector3& _position, const Vector3& _target_point, const Vector3& _up_vector, \
+DeepShadowMap::DeepShadowMap(list<Object*> objects,  double _focal_length, const Vector3& _position, const Vector3& _target_point, const Vector3& _up_vector, \
     float v_width, float v_height, float mapRes): focal_length(_focal_length), position(_position), target_point(_target_point), up_vector(_up_vector),
     viewport_height(v_height), viewport_width(v_width), mapResolution(mapRes)
 {
+    this->objects = objects;
+
     up = _up_vector.normalized();
     forward = (target_point - position).normalized();
     right = forward.crossProduct(up_vector).normalized() * -1;

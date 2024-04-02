@@ -30,7 +30,6 @@ void ShadowCell::CalculateSurfaceTransmittanceFunctions()
 
 		//Create a ray between the light origin and the sample point
 		Vector3 RayDirection = (WorldSamplePos - belongingShadowMap->position).normalized();
-		//Vector3 RayDirection(-1, 0, 0);
 
 		Ray sampleRay(belongingShadowMap->position, RayDirection);
 
@@ -61,10 +60,9 @@ void ShadowCell::CalculateSurfaceTransmittanceFunctionFromARay(int sampleIndex, 
 	//find all of the intersections and stock the depth and opacity informations
 	for (Object* obj : objects)
 	{
-		std::cout << "object light dir " << (obj->center - ray.center).normalized() << "\n";
 		if (obj->intersect(ray, intersectionPoint, normal))
 		{
-			std::cout << "there is a hit";
+			std::cout << "there is a hit and the id is";
 			float depth = (intersectionPoint - ray.center).length();
 			//update the transmittance
 			depthOpacVector.push_back(depthOpacity(depth, obj->m_params.opacity));

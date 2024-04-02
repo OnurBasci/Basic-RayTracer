@@ -154,8 +154,8 @@ int main(void)
     Scene scene(camera, objects, lights);
 
     //DEFINE THE DEEPSHADOWMAP
-    DeepShadowMap deepShadowMap(1, light1->position, Vector3(-1, 0, 0), Vector3(-1, 0, 0), 1, 1, 16);
-    deepShadowMap.shadowCells[0].CalculateSurfaceTransmittanceFunctions();
+    DeepShadowMap deepShadowMap(objects, 1, light1->position, Vector3(-2, 0, 11), Vector3(0, 1, 0), 1, 1, 16);
+    deepShadowMap.shadowCells[136].CalculateSurfaceTransmittanceFunctions();
     //std::cout << deepShadowMap.shadowCells[0].surfaceTransmittance[0][0];
 
     scene.render(image);
