@@ -26,6 +26,7 @@ public:
     Vector3 celll00_loc;
     float viewport_width, viewport_height;
     float mapResolution;
+    float samplePerCell;
     Vector3 pixel_delta_u, pixel_delta_v;
     vector<ShadowCell> shadowCells;
     Rectangle mapRectangle; //This is a rectangle wich helps us to find the corresponding visibility function index via an intersection calculation
@@ -33,7 +34,7 @@ public:
     DeepShadowMap() = default;
 
     DeepShadowMap(list<Object*> objects, double _focal_length, const Vector3& _position, const Vector3& _target_point, const Vector3& _up_vector, \
-        float v_width, float v_height, float mapResolution);
+        float v_width, float v_height, float mapResolution, float samplePerCell);
 
     float getVisibilityFromWorldPos(Vector3 worldPos);
 };

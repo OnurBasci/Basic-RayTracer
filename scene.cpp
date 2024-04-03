@@ -126,7 +126,7 @@ void Scene::render(Image& image)
 }
 
 
-/*void Scene::renderWithShadowMap(Image& image, DeepShadowMap shadowMap)
+void Scene::renderWithShadowMap(Image& image, DeepShadowMap* shadowMap)
 {
 	//This function renders shadows with a deep shadow map
 	Vector3 intersection_point(0, 0, 0);
@@ -137,6 +137,7 @@ void Scene::render(Image& image)
 	Vector3 pixelValue(0, 0, 0);
 	float intensity_sum = 0;
 	float Id = 0, Is = 0;
+	float visibility;
 
 	Vector3 shadow_check_intersect_point(0, 0, 0);
 	Vector3 shadow_check_normal(0, 0, 0);
@@ -167,7 +168,7 @@ void Scene::render(Image& image)
 						light->at(intersection_point, light_dir, light_intensity);
 
 						//Shadow calculations
-						Ray shadowRay(intersection_point, light->position - intersection_point);
+						visibility = shadowMap->getVisibilityFromWorldPos(intersection_point);
 
 						//light calculation
 						//diffusion
@@ -184,7 +185,7 @@ void Scene::render(Image& image)
 					//if (intensity_sum > 1) intensity_sum = 1;
 					//else if (intensity_sum < 0) intensity_sum = 0;
 					//update the pixel color
-					image.pixels[i][j] = obj->color * intensity_sum;
+					image.pixels[i][j] = obj->color * intensity_sum * visibility;
 					red_values.push_back(image.pixels[i][j].x);
 					green_values.push_back(image.pixels[i][j].y);
 					blue_values.push_back(image.pixels[i][j].z);
@@ -211,7 +212,7 @@ void Scene::render(Image& image)
 		}
 	}
 }
-*/
+
 
 float getMax(const std::list<float>& values) {
 	if (values.empty()) {

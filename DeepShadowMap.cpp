@@ -2,8 +2,8 @@
 #include"ShadowCell.h"
 
 DeepShadowMap::DeepShadowMap(list<Object*> objects,  double _focal_length, const Vector3& _position, const Vector3& _target_point, const Vector3& _up_vector, \
-    float v_width, float v_height, float mapRes): focal_length(_focal_length), position(_position), target_point(_target_point), up_vector(_up_vector),
-    viewport_height(v_height), viewport_width(v_width), mapResolution(mapRes)
+    float v_width, float v_height, float mapRes, float sampleNum): focal_length(_focal_length), position(_position), target_point(_target_point), up_vector(_up_vector),
+    viewport_height(v_height), viewport_width(v_width), mapResolution(mapRes), samplePerCell(sampleNum)
 {
     this->objects = objects;
 
@@ -27,7 +27,7 @@ DeepShadowMap::DeepShadowMap(list<Object*> objects,  double _focal_length, const
     {
         for (int j = 0; j < mapResolution; j ++)
         {
-            ShadowCell newCell(i, j, 4, this);
+            ShadowCell newCell(i, j, samplePerCell, this);
             shadowCells.push_back(newCell);
         }
     }
@@ -49,12 +49,14 @@ DeepShadowMap::DeepShadowMap(list<Object*> objects,  double _focal_length, const
 
 float DeepShadowMap::getVisibilityFromWorldPos(Vector3 WorldPos)
 {
+    //this function returns the visibility value of a point in the worldspace
+
     //get the intersection position on the rectangle
     Ray rayToMap(WorldPos, position - WorldPos);
     Vector3 intersectionPoint, normal;
     mapRectangle.intersect(rayToMap, intersectionPoint, normal);
 
-    cout << "Intersection Point : " << intersectionPoint << "\n";
+    //cout << "Intersection Point : " << intersectionPoint << "\n";
 
     //get the local coordinates with a projection
     Vector3 edge1 = mapRectangle.point2 - mapRectangle.point1;
@@ -64,12 +66,17 @@ float DeepShadowMap::getVisibilityFromWorldPos(Vector3 WorldPos)
     float localCoordinateX = (interPointDir * edge1) / (edge1 * edge1);
     float localCoordinateY = (interPointDir * edge2) / (edge2 * edge2);
 
-    cout << "local coordinates (" << localCoordinateX << ", " << localCoordinateY << ")\n";
+    //cout << "local coordinates (" << localCoordinateX << ", " << localCoordinateY << ")\n";
 
     //get cell Index
     int cellIndexI = localCoordinateX * mapResolution;
     int cellIndexJ = localCoordinateY * mapResolution;
-    cout << "cell coordinates (" << cellIndexI << ", " << cellIndexJ << ")\n";
+    //cout << "cell coordinates (" << cellIndexI << ", " << cellIndexJ << ")\n";
     
-    return 0;
+    //check if the cell coordinates are in the map resolution
+    //if the index is not in the range than the object is not defined in the shadow map so we return 1 for toatly visible
+    if (cellIndexI > mapResolution || cellIndexI < 0 || cellIndexJ > mapResolution || cellIndexJ < 0) return 1;
+
+    float depth = (WorldPos - position).length();
+    return shadowCells[cellIndexI * mapResolution + cellIndexJ].getVisibility(depth);
 }

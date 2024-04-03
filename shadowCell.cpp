@@ -162,7 +162,7 @@ float ShadowCell::getSurfaceTransmittanceValue(int functionIndex, float depth)
 	*/
 }
 
-float ShadowCell::getVisibility(float depth)
+float ShadowCell::getVisibility(float depth) 
 {
 	//this function returns the visibility value from a given depth
 	//the value is calculated by a linear interpolation

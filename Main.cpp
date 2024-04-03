@@ -163,12 +163,12 @@ int main(void)
     Scene scene(camera, objects, lights);
 
     //DEFINE THE DEEPSHADOWMAP
-    DeepShadowMap deepShadowMap(objects, 1, light1->position, Vector3(-2, 0, 11), Vector3(0, 1, 0), 1, 1, 16);
+    DeepShadowMap* deepShadowMap = new DeepShadowMap(objects, 1, light1->position, Vector3(-2, 0, 11), Vector3(0, 1, 0), 1, 1, 128, 32);
 
     
-    Vector3 pos(2, 0, 9);
+    Vector3 pos(2, 0, 11);
     
-    deepShadowMap.getVisibilityFromWorldPos(pos);
+    deepShadowMap->getVisibilityFromWorldPos(pos);
 
     //deepShadowMap.shadowCells[135].CalculateSurfaceTransmittanceFunctions();
     //deepShadowMap.shadowCells[135].CalculateVisibilityFunction();
@@ -180,11 +180,13 @@ int main(void)
     //deepShadowMap.shadowCells[135].CalculateVolumeFunction();
     //std::cout << deepShadowMap.shadowCells[0].surfaceTransmittance[0][0];
 
-    scene.render(image);
+    //scene.render(image);
+    scene.renderWithShadowMap(image, deepShadowMap);
     image.write("render.ppm");
    
     
     //Dealocate the memory
+    delete deepShadowMap;
     for (Object* obj: objects)
     {
         delete obj;
