@@ -30,5 +30,7 @@ public:
 
 	float getSurfaceTransmittanceValue(int functionIndex, float depth);
 
+	float getVisibility(float depth);
+
 	void CalculateVolumeFunction();
 };

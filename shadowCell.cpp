@@ -143,3 +143,35 @@ void ShadowCell::CalculateVolumeFunction()
 	}
 	cout << "]";
 }
+
+float ShadowCell::getVisibility(float depth)
+{
+	//this function returns the visibility value from a given depth
+	//the value is calculated by a linear interpolation
+	int depthIndex = 0;
+	float currentDepth;
+	for (int i = 0; i < hitDepthsForvisibility.size(); i++)
+	{
+		currentDepth = hitDepthsForvisibility[i];
+
+		if (depth < currentDepth) break;
+
+		depthIndex++;
+	}
+	//depth is higher than the final depth than return the last transmittance
+	if (depthIndex >= hitDepthsForvisibility.size() - 1) return visibilityFunction.back();
+	//if depth is lower than the first depth return 1 
+	if (depthIndex <= 0) return 1;
+
+	//Calculate a linear interpolation between the last and the next vertices
+	float lastVisibility = visibilityFunction[depthIndex-1];
+	float nextVisibility = visibilityFunction[depthIndex];;
+	float distNormalized = (depth - hitDepthsForvisibility[depthIndex-1]) / (hitDepthsForvisibility[depthIndex] - hitDepthsForvisibility[depthIndex-1]);
+
+	cout << "\nlast visibility is " << lastVisibility;
+	cout << "next visibility is " << nextVisibility << "\n";
+
+	return lastVisibility * (1 - distNormalized) + nextVisibility * distNormalized;
+}
+
+
