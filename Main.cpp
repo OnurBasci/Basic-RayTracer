@@ -54,7 +54,7 @@ int main(void)
     //BOX SCENE
     //box 1
     Vector3 box1Center(-2, 0, 11);
-    float width = 0.2;
+    float width = 0.1;
     float height = 4;
     float depth = 4;
     Vector3 color(255, 0, 0);
@@ -87,7 +87,7 @@ int main(void)
     objects.push_back(rect2);
     
     //box 2
-    box1Center = Vector3(1, 0, 11);
+    box1Center = Vector3(0, 0, 11);
     width = 0.2;
     height = 2;
     depth = 2;
@@ -121,7 +121,7 @@ int main(void)
     objects.push_back(rect2);
 
     //box 3
-    box1Center = Vector3(3, 0, 11);
+    box1Center = Vector3(2, 0, 11);
     width = 0.2;
     height = 1;
     depth = 1;
@@ -154,6 +154,42 @@ int main(void)
     objects.push_back(rect3);
     objects.push_back(rect2);
 
+    /*
+    //box 4
+    box1Center = Vector3(3, 0, 11);
+    width = 0.1;
+    height = 0.5;
+    depth = 0.5;
+    color = Vector3(255, 0, 255);
+    //rectangle 1
+    p1 = Vector3(box1Center.x - width, box1Center.y - height, box1Center.z - depth);
+    p2 = Vector3(box1Center.x - width, box1Center.y - height, box1Center.z + depth);
+    p3 = Vector3(box1Center.x - width, box1Center.y + height, box1Center.z - depth);
+
+    rect1 = new Rectangle(p1, p2, p3, color, MaterialParameters(1, 0.5, 0.3));
+    rect1->id = 3;
+
+    //rectangle 2
+    p21 = Vector3(box1Center.x - width, box1Center.y - height, box1Center.z - depth);
+    p22 = Vector3(box1Center.x - width, box1Center.y + height, box1Center.z - depth);
+    p23 = Vector3(box1Center.x + width, box1Center.y - height, box1Center.z - depth);
+
+    rect2 = new Rectangle(p21, p22, p23, color, MaterialParameters(1, 0.5, 0.3));
+    rect2->id = 3;
+
+    //rectangle 3
+    p31 = Vector3(box1Center.x + width, box1Center.y - height, box1Center.z - depth);
+    p32 = Vector3(box1Center.x + width, box1Center.y + height, box1Center.z - depth);
+    p33 = Vector3(box1Center.x + width, box1Center.y - height, box1Center.z + depth);
+
+    rect3 = new Rectangle(p31, p32, p33, color, MaterialParameters(1, 0.5, 0.3));
+    rect3->id = 3;
+
+    objects.push_back(rect1);
+    objects.push_back(rect3);
+    objects.push_back(rect2);
+
+    */
     //SPHERES
     //objects.push_back(new Sphere(Vector3(0, 0, 11), 1, Vector3(0, 255, 0), MaterialParameters(1,0.5)));
     //objects.push_back(new Sphere(Vector3(2, -1, 7), 4, Vector3(255, 0, 0), MaterialParameters(20,0.4)));
@@ -163,7 +199,7 @@ int main(void)
     Scene scene(camera, objects, lights);
 
     //DEFINE THE DEEPSHADOWMAP
-    DeepShadowMap* deepShadowMap = new DeepShadowMap(objects, 1, light1->position, Vector3(-2, 0, 11), Vector3(0, 1, 0), 1, 1, 128, 32);
+    DeepShadowMap* deepShadowMap = new DeepShadowMap(objects, 1, light1->position, Vector3(-2, 0, 11), Vector3(0, 1, 0), 1, 1, 64, 32);
 
     
     Vector3 pos(2, 0, 11);
