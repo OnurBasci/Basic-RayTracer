@@ -51,6 +51,7 @@ void ShadowCell::CalculateSurfaceTransmittanceFunctionFromARay(int sampleIndex, 
 	//deine a float2 vector to stock depth and corrsponding objects obacity to later sort them by the depth and calculate transmittance
 	vector<depthOpacity> depthOpacVector;
 
+	//Get the transmittance and opacity values
 	for (Object* obj : objects)
 	{
 		if (obj->intersect(ray, intersectionPoint, normal))
@@ -67,35 +68,78 @@ void ShadowCell::CalculateSurfaceTransmittanceFunctionFromARay(int sampleIndex, 
 	//calculate transmittance function
 	//the transmittance start by 1
 	surfaceTransmittance[sampleIndex].push_back(1);
+	hitDepths[sampleIndex].push_back(0);
 	cout << "transmitance function for " << sampleIndex << " [";
 	for (depthOpacity elem : depthOpacVector)
 	{
-		//cout << "opacity " << (1 - elem.opacity) << " ";
+		cout << "d: " << hitDepths[sampleIndex].back() << " " << "t: " << surfaceTransmittance[sampleIndex].back() << ", ";
 		float nextTransmittance = surfaceTransmittance[sampleIndex].back() * (1-elem.opacity);
 		surfaceTransmittance[sampleIndex].push_back(nextTransmittance);
 		hitDepths[sampleIndex].push_back(elem.depth);
-		cout << hitDepths[sampleIndex].back() << " ";
 	}
 	cout << "]\n";
+}
+
+float ShadowCell::getSurfaceTransmittanceValue(int functionIndex, float depth)
+{
+	//this function calculates the surface transmittance value of a surface transmittance function for a given depth
+	//the value is equal to the surface transmittance value of the last vertex
+
+	int depthIndex = 0;
+	float currentDepth;
+	for (int i = 0; i < hitDepths[functionIndex].size(); i++)
+	{
+		currentDepth = hitDepths[functionIndex][i];
+
+		if (depth < currentDepth) break;
+
+		depthIndex++;
+	}
+	//depth is higher than the final depth than return the last transmittance
+	if (depthIndex >= hitDepths[functionIndex].size() - 1) return surfaceTransmittance[functionIndex].back();
+	//if depth is lower than the first depth return 1 
+	if (depthIndex <= 0) return 1;
+
+	return surfaceTransmittance[functionIndex][depthIndex-1];
+
+	/*
+	//linear interpolatio
+	float lastTransmittance = surfaceTransmittance[functionIndex][depthIndex-1];
+	float nextTransmittance = surfaceTransmittance[functionIndex][depthIndex];
+	float distNormalized = (depth - hitDepths[functionIndex][depthIndex-1])/(hitDepths[functionIndex][depthIndex] - hitDepths[functionIndex][depthIndex-1]);
+
+	return lastTransmittance * (1 - distNormalized) + nextTransmittance * distNormalized;
+	*/
 }
 
 void ShadowCell::CalculateVolumeFunction()
 {
 	//This function calculates the volume function by averaging transmittance functions
 
-	//Naif implementation merge vectors and sort them
-	for (int i = 0; i < sampleNumber-1; i++)
+	//merge and sort the depth of all transmittance functions
+	for (int i = 0; i < sampleNumber; i++)
 	{
-		hitDepthsForvisibility.insert(hitDepthsForvisibility.end(), hitDepths[i+1].begin(), hitDepths[i+1].end());
-		visibilityFunction.insert(visibilityFunction.end(), surfaceTransmittance[i + 1].begin(), surfaceTransmittance[i+1].end());
+		hitDepthsForvisibility.insert(hitDepthsForvisibility.end(), hitDepths[i].begin(), hitDepths[i].end());
+	}
+	sort(hitDepthsForvisibility.begin(), hitDepthsForvisibility.end());
+
+	//calculate transmittance for each of the depth by averaging surface transmittance value (to normalize)
+	float transmittance;
+	float depth;
+	for (float depth : hitDepthsForvisibility)
+	{
+		transmittance = 0;
+		for (int functionIdex = 0; functionIdex < sampleNumber; functionIdex++)
+		{
+			transmittance += getSurfaceTransmittanceValue(functionIdex, depth);
+		}
+		visibilityFunction.push_back(transmittance / sampleNumber);
 	}
 
-	sort(hitDepthsForvisibility.begin(), hitDepthsForvisibility.end());
-	sort(visibilityFunction.begin(), visibilityFunction.end());
-
-	cout << "hit depth for visibility: ";
+	cout << "hit depth and visibility: [" << "\n";
 	for (int i = 0; i < hitDepthsForvisibility.size(); i++)
 	{
-		cout << hitDepthsForvisibility[i] << " ";
+		cout << "d: " << hitDepthsForvisibility[i] << " t: " << visibilityFunction[i] << " ";
 	}
+	cout << "]";
 }

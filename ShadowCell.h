@@ -28,5 +28,7 @@ public:
 	void CalculateSurfaceTransmittanceFunctions();
 	void CalculateSurfaceTransmittanceFunctionFromARay(int sampleIndex, Ray ray, list<Object*> objects);
 
+	float getSurfaceTransmittanceValue(int functionIndex, float depth);
+
 	void CalculateVolumeFunction();
 };

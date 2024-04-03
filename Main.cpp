@@ -167,6 +167,8 @@ int main(void)
     //deepShadowMap.shadowCells[7].CalculateSurfaceTransmittanceFunctions();
     deepShadowMap.shadowCells[135].CalculateSurfaceTransmittanceFunctions();
     deepShadowMap.shadowCells[135].CalculateVolumeFunction();
+    //cout << "\nthe transmittance: " << deepShadowMap.shadowCells[135].getSurfaceTransmittanceValue(0, 5);
+    //deepShadowMap.shadowCells[135].CalculateVolumeFunction();
     //std::cout << deepShadowMap.shadowCells[0].surfaceTransmittance[0][0];
 
     scene.render(image);
