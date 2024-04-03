@@ -164,6 +164,12 @@ int main(void)
 
     //DEFINE THE DEEPSHADOWMAP
     DeepShadowMap deepShadowMap(objects, 1, light1->position, Vector3(-2, 0, 11), Vector3(0, 1, 0), 1, 1, 16);
+
+    
+    Vector3 pos(2, 0, 9);
+    
+    deepShadowMap.getVisibilityFromWorldPos(pos);
+
     //deepShadowMap.shadowCells[135].CalculateSurfaceTransmittanceFunctions();
     //deepShadowMap.shadowCells[135].CalculateVisibilityFunction();
     //cout << "\ntransmittance: " << deepShadowMap.shadowCells[135].getSurfaceTransmittanceValue(0, 4.80239296);

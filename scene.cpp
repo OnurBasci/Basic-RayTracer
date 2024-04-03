@@ -9,6 +9,11 @@ Scene::Scene(Camera camera, list<Object*> objects, list<Light*> ligths){
 	this->pointLights = ligths;
 }
 
+/*Scene::Scene(Camera camera, list<Object*> objects, list<Light*> ligths, DeepShadowMap shadowMap) {
+	Scene(camera, objects, ligths);
+	this->shadowMap = shadowMap;
+}*/
+
 Scene::Scene(list<Object*> objects, list<Light*> ligths)
 {
 	this->objects = objects;
@@ -119,6 +124,94 @@ void Scene::render(Image& image)
 		}
 	}
 }
+
+
+/*void Scene::renderWithShadowMap(Image& image, DeepShadowMap shadowMap)
+{
+	//This function renders shadows with a deep shadow map
+	Vector3 intersection_point(0, 0, 0);
+	Vector3 normal(1, 0, 0);
+	Vector3 light_dir(0, 0, 0);
+	Vector3 light_intensity(0, 0, 0);
+
+	Vector3 pixelValue(0, 0, 0);
+	float intensity_sum = 0;
+	float Id = 0, Is = 0;
+
+	Vector3 shadow_check_intersect_point(0, 0, 0);
+	Vector3 shadow_check_normal(0, 0, 0);
+
+	//to normalize the colors
+	list<float> red_values;
+	list<float> green_values;
+	list<float> blue_values;
+	//Calculate rays foreach pixel
+	for (int i = 0; i < image.width; i++)
+	{
+		for (int j = 0; j < image.height; j++)
+		{
+			Ray ray = camera.pixelToRay(i, j);
+
+			//cout << ray.direction << " ";
+
+			//Check intersection for all objects
+			for (Object* obj : objects) {
+
+				if (obj->intersect(ray, intersection_point, normal))
+				{
+					//cout << intersection_point;
+					intensity_sum = 0;
+					//calculate color for all lights
+					for (Light* light : pointLights)
+					{
+						light->at(intersection_point, light_dir, light_intensity);
+
+						//Shadow calculations
+						Ray shadowRay(intersection_point, light->position - intersection_point);
+
+						//light calculation
+						//diffusion
+						Id = obj->m_params.kd * (normal * light_dir.normalized()) * light_intensity.length();
+
+						//specular
+						Vector3 I = ray.direction.normalized();
+						Vector3 S = I - normal * 2 * (I * normal);
+						Is = obj->m_params.ks * light_intensity.length() * (S * light_dir.normalized());
+
+						intensity_sum += Id + Is;
+					}
+					//normalize the intensity
+					//if (intensity_sum > 1) intensity_sum = 1;
+					//else if (intensity_sum < 0) intensity_sum = 0;
+					//update the pixel color
+					image.pixels[i][j] = obj->color * intensity_sum;
+					red_values.push_back(image.pixels[i][j].x);
+					green_values.push_back(image.pixels[i][j].y);
+					blue_values.push_back(image.pixels[i][j].z);
+					//cout << (light_intensity / 255) << " ";
+				}
+			}
+		}
+	}
+
+	//normilize the pixel colors
+	float max_red = getMax(red_values);
+	float max_green = getMax(green_values);
+	float max_blue = getMax(blue_values);
+	for (int i = 0; i < image.width; i++)
+	{
+		for (int j = 0; j < image.height; j++)
+		{
+			if (image.pixels[i][j].x == image.bg_color.x && image.pixels[i][j].y == image.bg_color.y && image.pixels[i][j].z == image.bg_color.z)
+				continue;
+			float scaled_red = (max_red > 0) ? (1 - ((max_red - image.pixels[i][j].x) / max_red)) * 255 : 0;
+			float scaled_green = (max_green > 0) ? (1 - ((max_green - image.pixels[i][j].y) / max_green)) * 255 : 0;
+			float scaled_blue = (max_blue > 0) ? (1 - ((max_blue - image.pixels[i][j].z) / max_blue)) * 255 : 0;
+			image.pixels[i][j] = Vector3(scaled_red, scaled_green, scaled_blue);
+		}
+	}
+}
+*/
 
 float getMax(const std::list<float>& values) {
 	if (values.empty()) {

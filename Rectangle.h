@@ -18,5 +18,7 @@ public:
 
 	Rectangle(Vector3 p1, Vector3 p2, Vector3 p3, Vector3 color, MaterialParameters mParams);
 
+	Rectangle() = default;
+
 	bool intersect(const Ray& ray, Vector3& intersection_point, Vector3& normal) override;
 };

@@ -31,7 +31,6 @@ void ShadowCell::CalculateVisibilityFunction()
 
 	//calculate transmittance for each of the depth by averaging surface transmittance value (to normalize)
 	float transmittance;
-	float depth;
 	for (float depth : hitDepthsForvisibility)
 	{
 		transmittance = 0;
@@ -50,7 +49,7 @@ void ShadowCell::CalculateVisibilityFunction()
 		cout << " d: " << hitDepthsForvisibility[i] << " t : " << visibilityFunction[i];
 	}
 	cout << "]\n";
-	*/
+	*/ 
 }
 
 void ShadowCell::CalculateSurfaceTransmittanceFunctions()
@@ -145,7 +144,7 @@ float ShadowCell::getSurfaceTransmittanceValue(int functionIndex, float depth)
 		if (depth < currentDepth) break;
 
 		depthIndex++;
-	}
+	} 
 	//depth is higher than the final depth than return the last transmittance
 	if (depthIndex >= hitDepths[functionIndex].size() - 1) return surfaceTransmittance[functionIndex].back();
 	//if depth is lower than the first depth return 1 

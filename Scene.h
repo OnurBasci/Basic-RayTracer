@@ -6,6 +6,7 @@
 #include"Camera.h"
 #include"Image.h"
 #include"PointLight.h"
+#include"DeepShadowMap.h"
 
 using namespace std;
 
@@ -19,4 +20,5 @@ public:
 	Scene(list<Object*> objects, list<Light*> lights);
 
 	void render(Image& image);
+	//void renderWithShadowMap(Image& image, DeepShadowMap shadowMap);
 };

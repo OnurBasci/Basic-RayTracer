@@ -21,7 +21,7 @@ public:
 	vector<vector<float>> surfaceTransmittance;
 	vector<float> visibilityFunction; //the function that contains the visibilty information
 	vector<float> hitDepthsForvisibility; //Data structure containing the depth value for each of the sample of each transmittance functions
-	DeepShadowMap* belongingShadowMap;
+	DeepShadowMap* belongingShadowMap; 
 
 	ShadowCell(int index_i, int index_j, int sampleNumber, DeepShadowMap* belongingShadowMap);
 
@@ -32,5 +32,5 @@ public:
 
 	float getVisibility(float depth); 
 
-	void CalculateVisibilityFunction();
+	void CalculateVisibilityFunction(); 
 };
