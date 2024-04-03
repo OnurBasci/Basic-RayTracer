@@ -15,6 +15,44 @@ ShadowCell::ShadowCell(int index_i, int index_j, int sampleNumber, DeepShadowMap
 	this->belongingShadowMap = belongingShadowMap;
 }
 
+void ShadowCell::CalculateVisibilityFunction()
+{
+	//This function calculates the volume function by averaging transmittance functions
+
+	//calculate surface transmittance functions
+	CalculateSurfaceTransmittanceFunctions();
+
+	//merge and sort the depth of all transmittance functions
+	for (int i = 0; i < sampleNumber; i++)
+	{
+		hitDepthsForvisibility.insert(hitDepthsForvisibility.end(), hitDepths[i].begin(), hitDepths[i].end());
+	}
+	sort(hitDepthsForvisibility.begin(), hitDepthsForvisibility.end());
+
+	//calculate transmittance for each of the depth by averaging surface transmittance value (to normalize)
+	float transmittance;
+	float depth;
+	for (float depth : hitDepthsForvisibility)
+	{
+		transmittance = 0;
+		for (int functionIdex = 0; functionIdex < sampleNumber; functionIdex++)
+		{
+			transmittance += getSurfaceTransmittanceValue(functionIdex, depth);
+		}
+		visibilityFunction.push_back(transmittance / sampleNumber);
+	}
+
+
+	/*
+	cout << "visibility function: [ ";
+	for (int i = 0; i < visibilityFunction.size(); i++)
+	{
+		cout << " d: " << hitDepthsForvisibility[i] << " t : " << visibilityFunction[i];
+	}
+	cout << "]\n";
+	*/
+}
+
 void ShadowCell::CalculateSurfaceTransmittanceFunctions()
 {
 	//This function sample random positions on the cell and calculate the transmittance function for all of the points
@@ -65,19 +103,32 @@ void ShadowCell::CalculateSurfaceTransmittanceFunctionFromARay(int sampleIndex, 
 	sort(depthOpacVector.begin(), depthOpacVector.end(), [](const depthOpacity& a, const depthOpacity& b)
 		{ return a.depth < b.depth;});
 
-	//calculate transmittance function
+	//calculate transmittance function. Every hit creates 2 verticies, discontinuous function
 	//the transmittance start by 1
 	surfaceTransmittance[sampleIndex].push_back(1);
 	hitDepths[sampleIndex].push_back(0);
-	cout << "transmitance function for " << sampleIndex << " [";
+
+	float epsilon = 1e-6;
 	for (depthOpacity elem : depthOpacVector)
 	{
-		cout << "d: " << hitDepths[sampleIndex].back() << " " << "t: " << surfaceTransmittance[sampleIndex].back() << ", ";
-		float nextTransmittance = surfaceTransmittance[sampleIndex].back() * (1-elem.opacity);
-		surfaceTransmittance[sampleIndex].push_back(nextTransmittance);
+		float lastElem = surfaceTransmittance[sampleIndex].back();
+		//add the old transmittance, discontinuous function
+		surfaceTransmittance[sampleIndex].push_back(lastElem);
 		hitDepths[sampleIndex].push_back(elem.depth);
+		//add the new value
+		float nextTransmittance = lastElem * (1-elem.opacity);
+		surfaceTransmittance[sampleIndex].push_back(nextTransmittance);
+		hitDepths[sampleIndex].push_back(elem.depth+epsilon);
 	}
-	cout << "]\n";
+
+	/*
+	cout << "trans for " << sampleIndex << "[ ";
+	for (int i = 0 ; i < surfaceTransmittance[sampleIndex].size(); i ++)
+	{
+		cout << " d: " << hitDepths[sampleIndex][i] << " t : " << surfaceTransmittance[sampleIndex][i];
+	}
+	cout << "\n \n";
+	*/
 }
 
 float ShadowCell::getSurfaceTransmittanceValue(int functionIndex, float depth)
@@ -112,38 +163,6 @@ float ShadowCell::getSurfaceTransmittanceValue(int functionIndex, float depth)
 	*/
 }
 
-void ShadowCell::CalculateVolumeFunction()
-{
-	//This function calculates the volume function by averaging transmittance functions
-
-	//merge and sort the depth of all transmittance functions
-	for (int i = 0; i < sampleNumber; i++)
-	{
-		hitDepthsForvisibility.insert(hitDepthsForvisibility.end(), hitDepths[i].begin(), hitDepths[i].end());
-	}
-	sort(hitDepthsForvisibility.begin(), hitDepthsForvisibility.end());
-
-	//calculate transmittance for each of the depth by averaging surface transmittance value (to normalize)
-	float transmittance;
-	float depth;
-	for (float depth : hitDepthsForvisibility)
-	{
-		transmittance = 0;
-		for (int functionIdex = 0; functionIdex < sampleNumber; functionIdex++)
-		{
-			transmittance += getSurfaceTransmittanceValue(functionIdex, depth);
-		}
-		visibilityFunction.push_back(transmittance / sampleNumber);
-	}
-
-	cout << "hit depth and visibility: [" << "\n";
-	for (int i = 0; i < hitDepthsForvisibility.size(); i++)
-	{
-		cout << "d: " << hitDepthsForvisibility[i] << " t: " << visibilityFunction[i] << " ";
-	}
-	cout << "]";
-}
-
 float ShadowCell::getVisibility(float depth)
 {
 	//this function returns the visibility value from a given depth
@@ -167,9 +186,6 @@ float ShadowCell::getVisibility(float depth)
 	float lastVisibility = visibilityFunction[depthIndex-1];
 	float nextVisibility = visibilityFunction[depthIndex];;
 	float distNormalized = (depth - hitDepthsForvisibility[depthIndex-1]) / (hitDepthsForvisibility[depthIndex] - hitDepthsForvisibility[depthIndex-1]);
-
-	cout << "\nlast visibility is " << lastVisibility;
-	cout << "next visibility is " << nextVisibility << "\n";
 
 	return lastVisibility * (1 - distNormalized) + nextVisibility * distNormalized;
 }

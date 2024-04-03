@@ -31,4 +31,10 @@ DeepShadowMap::DeepShadowMap(list<Object*> objects,  double _focal_length, const
             shadowCells.push_back(newCell);
         }
     }
+
+    //Calculate Volume functions for each of the shadowCells
+    for (int i = 0; i < mapResolution * mapResolution; i++)
+    {
+        shadowCells[i].CalculateVisibilityFunction(); 
+    }
 }

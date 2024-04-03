@@ -164,10 +164,13 @@ int main(void)
 
     //DEFINE THE DEEPSHADOWMAP
     DeepShadowMap deepShadowMap(objects, 1, light1->position, Vector3(-2, 0, 11), Vector3(0, 1, 0), 1, 1, 16);
-    //deepShadowMap.shadowCells[7].CalculateSurfaceTransmittanceFunctions();
-    deepShadowMap.shadowCells[135].CalculateSurfaceTransmittanceFunctions();
-    deepShadowMap.shadowCells[135].CalculateVolumeFunction();
-    cout << "\nthe visibility: " << deepShadowMap.shadowCells[135].getVisibility(10);
+    //deepShadowMap.shadowCells[135].CalculateSurfaceTransmittanceFunctions();
+    //deepShadowMap.shadowCells[135].CalculateVisibilityFunction();
+    //cout << "\ntransmittance: " << deepShadowMap.shadowCells[135].getSurfaceTransmittanceValue(0, 4.80239296);
+
+    //deepShadowMap.shadowCells[135].CalculateVolumeFunction();
+
+
     //deepShadowMap.shadowCells[135].CalculateVolumeFunction();
     //std::cout << deepShadowMap.shadowCells[0].surfaceTransmittance[0][0];
 
