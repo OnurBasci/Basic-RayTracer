@@ -24,8 +24,8 @@ int main(void)
     //image.write("imagefile2.ppm");
 
     //define the scene    X Right Y Upward Z FORWARD 
-    float numpixelX = 200;//increase these for smoothness
-    float numpixelY = 200;
+    float numpixelX = 400;//increase these for smoothness
+    float numpixelY = 400;
     Camera camera(1, Vector3(4, 0, 0), Vector3(4-0.3, 0, 1), Vector3(-1, 0, 0), 1, 1, numpixelX, numpixelY);
 
     PointLight* light1 = new PointLight(Vector3(8, 0, 11), Vector3(255, 255, 255), 20);
@@ -87,7 +87,7 @@ int main(void)
     objects.push_back(rect2);
     
     //box 2
-    box1Center = Vector3(0, 0, 11);
+    box1Center = Vector3(1, 0, 11);
     width = 0.2;
     height = 2;
     depth = 2;
@@ -121,7 +121,7 @@ int main(void)
     objects.push_back(rect2);
 
     //box 3
-    box1Center = Vector3(2, 0, 11);
+    box1Center = Vector3(3, 0, 11);
     width = 0.2;
     height = 1;
     depth = 1;
@@ -199,12 +199,8 @@ int main(void)
     Scene scene(camera, objects, lights);
 
     //DEFINE THE DEEPSHADOWMAP
-    DeepShadowMap* deepShadowMap = new DeepShadowMap(objects, 1, light1->position, Vector3(-2, 0, 11), Vector3(0, 1, 0), 1, 1, 64, 32);
+    DeepShadowMap* deepShadowMap = new DeepShadowMap(objects, 1, light1->position, Vector3(-2, 0, 11), Vector3(0, 1, 0), 1, 1, 128, 16);
 
-    
-    Vector3 pos(2, 0, 11);
-    
-    deepShadowMap->getVisibilityFromWorldPos(pos);
 
     //deepShadowMap.shadowCells[135].CalculateSurfaceTransmittanceFunctions();
     //deepShadowMap.shadowCells[135].CalculateVisibilityFunction();

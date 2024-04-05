@@ -13,11 +13,13 @@ Image::Image(int w, int h)
     width = w;
     height = h;
 
+    this->pixels = vector<vector<Vector3>>(height);
+
     for (int i = 0; i < height; i++)
     {
         for (int j = 0; j < width; j++)
         {
-            pixels[i][j] = bg_color;
+            pixels[i].push_back(bg_color);
         }
     }
 };
@@ -43,7 +45,6 @@ bool Image::write(const std::string& filename) const {
             pixel = pixels[i][j];
             file << pixel.x << " " << pixel.y << " " << pixel.z << "  ";
         }
-        file << "\n";
     }
     /*for (const auto& pixel : pixels) {
 

@@ -5,10 +5,14 @@
 
 const int TAILLE_MAX = 200;
 
+using namespace std;
+
 class Image {
 public:
 	int width, height;
-	Vector3 pixels[TAILLE_MAX][TAILLE_MAX];
+	//Vector3 pixels[TAILLE_MAX][TAILLE_MAX];
+
+	vector<vector<Vector3>> pixels;
 
 	Vector3 bg_color = Vector3(86, 29, 219);
 
