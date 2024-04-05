@@ -134,6 +134,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="Cylinder.cpp" />
     <ClCompile Include="DeepShadowMap.cpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="Image.cpp" />
@@ -144,6 +145,7 @@
     <ClCompile Include="Ray.cpp" />
     <ClCompile Include="Rectangle.cpp" />
     <ClCompile Include="scene.cpp" />
+    <ClCompile Include="SceneSetUp.cpp" />
     <ClCompile Include="shadowCell.cpp" />
     <ClCompile Include="ShadowCell.h" />
     <ClCompile Include="Sphere.cpp" />
@@ -153,11 +155,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="Cylinder.h" />
     <ClInclude Include="DeepShadowMap.h" />
     <ClInclude Include="DirectionalLight.h" />
     <ClInclude Include="Light.h" />
     <ClInclude Include="Plane.h" />
     <ClInclude Include="Rectangle.h" />
+    <ClInclude Include="SceneSetUp.h" />
     <ClInclude Include="Sphere.h" />
     <ClInclude Include="Image.h" />
     <ClInclude Include="PointLight.h" />
