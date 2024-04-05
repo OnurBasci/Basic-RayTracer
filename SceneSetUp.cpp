@@ -41,11 +41,8 @@ void SceneSetUp::render3BoxSceneSetUp()
     PointLight* light1 = new PointLight(Vector3(8, 0, 11), Vector3(255, 255, 255), 20);
     //PointLight light2(Vector3(3, 4, -1), Vector3(255, 255, 255), 20);
 
-    list<Light*> lights;
     lights.push_back(light1);
     //lights.push_back(light2);
-
-    list<Object*> objects;
 
     //Set Objects
     //box 1
@@ -170,7 +167,53 @@ void SceneSetUp::render3BoxSceneSetUp()
     //scene.renderWithShadowMap(image, deepShadowMap);
     image.write("render.ppm");
 
+}
 
+void SceneSetUp::renderCylinderScene()
+{
+    //Set Camera and Lightning
+    Camera camera(1, Vector3(0, 0, -5), Vector3(0, 0, 1), Vector3(-1, 0, 0), 1, 1, numPixelX, numPixelY);
+
+    PointLight* light1 = new PointLight(Vector3(3, 0, 0), Vector3(255, 255, 255), 20);
+    //PointLight light2(Vector3(3, 4, -1), Vector3(255, 255, 255), 20);
+
+    lights.push_back(light1);
+    //lights.push_back(light2);
+
+    //SET THE OBJECTS
+
+    for (float i = 0; i < 20; i++)
+    {
+        objects.push_back(new Cylinder(Vector3(((static_cast<float>(rand()) / RAND_MAX)-0.5)*2, 0, ((static_cast<float>(rand()) / RAND_MAX) - 0.5) * 2), 0.05, Vector3(255, 255, 0), MaterialParameters()));
+    }
+
+    //objects.push_back(new Cylinder(Vector3(0, 0, 0), 0.05, Vector3(255,255,0), MaterialParameters()));
+
+    //objects.push_back(new Sphere(Vector3(0, 0, 0), 1, Vector3(0, 255, 0), MaterialParameters(1,0.5)));
+    //objects.push_back(new Sphere(Vector3(2, -1, 7), 4, Vector3(255, 0, 0), MaterialParameters(20,0.4)));
+
+    //Render the scene
+    Image image(numPixelX, numPixelY);
+
+    Scene scene(camera, objects, lights);
+
+    if (useDeepShadowMap)
+    {
+        DeepShadowMap* deepShadowMap = new DeepShadowMap(objects, 1, light1->position, Vector3(-2, 0, 11), Vector3(0, 1, 0), 1, 1, deepShadowMapRes, deepShadowMapSample);
+        scene.renderWithShadowMap(image, deepShadowMap);
+        delete deepShadowMap;
+    }
+    else
+    {
+        scene.render(image);
+    }
+
+    //scene.renderWithShadowMap(image, deepShadowMap);
+    image.write("render.ppm");
+}
+
+SceneSetUp::~SceneSetUp()
+{
     //Dealocate the memory
     for (Object* obj : objects)
     {
@@ -180,5 +223,4 @@ void SceneSetUp::render3BoxSceneSetUp()
     {
         delete l;
     }
-
 }

@@ -5,10 +5,9 @@
 class Cylinder : public Object
 {
 public:
-	Vector3 position;
 	float radius;
 
-	Cylinder(Vector3 position, float radius);
+	Cylinder(Vector3 center, float radius, Vector3 color, MaterialParameters mParams);
 
 	bool intersect(const Ray& ray, Vector3& intersection_point, Vector3& normal) override;
 };

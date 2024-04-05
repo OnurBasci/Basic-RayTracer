@@ -33,7 +33,8 @@ int main(void)
     
     SceneSetUp sceneRenderer(numpixelX, numpixelY, deepShadowMapResolution, deepShadowMapSampleNum, true);
 
-    sceneRenderer.render3BoxSceneSetUp();
+    //sceneRenderer.render3BoxSceneSetUp();
+    sceneRenderer.renderCylinderScene();
 
     return 0;
 }
