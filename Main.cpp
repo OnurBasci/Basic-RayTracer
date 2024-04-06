@@ -26,12 +26,12 @@ int main(void)
     //image.write("imagefile2.ppm");
 
     //define the scene    X Right Y Upward Z FORWARD 
-    float numpixelX = 400;//increase these for smoothness
-    float numpixelY = 400;
-    float deepShadowMapResolution = 64;
+    float numpixelX = 1500;//increase these for smoothness
+    float numpixelY = 1500;
+    float deepShadowMapResolution = 32;
     float deepShadowMapSampleNum = 16;
     
-    SceneSetUp sceneRenderer(numpixelX, numpixelY, deepShadowMapResolution, deepShadowMapSampleNum, true);
+    SceneSetUp sceneRenderer(numpixelX, numpixelY, deepShadowMapResolution, deepShadowMapSampleNum, false);
 
     //sceneRenderer.render3BoxSceneSetUp();
     sceneRenderer.renderCylinderScene();

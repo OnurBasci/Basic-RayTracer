@@ -37,4 +37,5 @@ public:
         float v_width, float v_height, float mapResolution, float samplePerCell);
 
     float getVisibilityFromWorldPos(Vector3 worldPos);
+    float getAveragesVisibilityFromWorldPos(Vector3 WorldPos);
 };

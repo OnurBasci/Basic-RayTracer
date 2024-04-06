@@ -25,6 +25,9 @@ bool Sphere::intersect(const Ray& ray, Vector3& intersection_point, Vector3& nor
 
 		normal = (intersection_point - center).normalized(); //spheres normal
 
+		//push the intersection a bit in the direction of the normal
+		//intersection_point = intersection_point + normal * 0.1;
+
 		return true;
 	}
 

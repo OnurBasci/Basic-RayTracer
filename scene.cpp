@@ -168,7 +168,8 @@ void Scene::renderWithShadowMap(Image& image, DeepShadowMap* shadowMap)
 						light->at(intersection_point, light_dir, light_intensity);
 
 						//Shadow calculations
-						visibility = shadowMap->getVisibilityFromWorldPos(intersection_point);
+						visibility = shadowMap->getAveragesVisibilityFromWorldPos(intersection_point);
+						//visibility = shadowMap->getVisibilityFromWorldPos(intersection_point);
 
 						//light calculation
 						//diffusion

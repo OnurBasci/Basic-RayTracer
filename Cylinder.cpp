@@ -27,7 +27,9 @@ bool Cylinder::intersect(const Ray& ray, Vector3& intersection_point, Vector3& n
 		normal = (intersection_point - center);
 		normal.y = 0;
 		normal = normal.normalized();
-	
+		
+		//push the intersection a bit in the direction of the normal
+		//intersection_point = intersection_point + normal * 0.5;
 
 		return true;
 	}
