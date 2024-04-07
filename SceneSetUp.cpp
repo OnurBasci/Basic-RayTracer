@@ -246,6 +246,38 @@ void SceneSetUp::renderCylinderScene()
     image.write("render.ppm");
 }
 
+void SceneSetUp::volumetricObjectTestScene()
+{
+    //Set Camera and Lightning
+    Camera camera(1, Vector3(0, 0, -2), Vector3(0, 0, 1), Vector3(-1, 0, 0), 1, 1, numPixelX, numPixelY);
+
+    PointLight* light1 = new PointLight(Vector3(3, 0, 0), Vector3(255, 255, 255), 20);
+    lights.push_back(light1);
+
+    Sphere* volumetricSphere = new Sphere(Vector3(0, 0, 2), 1, Vector3(0, 255, 0), MaterialParameters(1, 0.5, 1, 1));
+    volumetricSphere->is_volumetric_object = true;
+
+    objects.push_back(volumetricSphere);
+
+    Image image(numPixelX, numPixelY);
+
+    Scene scene(camera, objects, lights);
+
+    if (useDeepShadowMap)
+    {
+        DeepShadowMap* deepShadowMap = new DeepShadowMap(objects, 1, light1->position, Vector3(0, 0, 0), Vector3(0, 1, 0), 2, 2, deepShadowMapRes, deepShadowMapSample);
+        scene.renderWithShadowMap(image, deepShadowMap);
+        delete deepShadowMap;
+    }
+    else
+    {
+        scene.render(image);
+    }
+
+    image.write("render.ppm");
+}
+
+
 SceneSetUp::~SceneSetUp()
 {
     //Dealocate the memory

@@ -32,3 +32,9 @@ bool Rectangle::intersect(const Ray& ray, Vector3& intersection_point, Vector3& 
     }
     return false;
 }
+
+bool Rectangle::volumeIntersect(const Ray& ray, float& t0, float& t1)
+{
+    //TO DO
+    return false;
+}

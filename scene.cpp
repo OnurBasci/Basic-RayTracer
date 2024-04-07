@@ -28,6 +28,7 @@ void Scene::render(Image& image)
 	Vector3 normal(1, 0, 0);
 	Vector3 light_dir(0, 0, 0);
 	Vector3 light_intensity(0, 0, 0);
+	float t0, t1; //intersection values
 
 	Vector3 pixelValue(0, 0, 0);
 	float intensity_sum = 0;
@@ -52,7 +53,8 @@ void Scene::render(Image& image)
 			//Check intersection for all objects
 			for (Object* obj : objects) {
 
-				if (obj->intersect(ray, intersection_point, normal))
+				//Solid objec intersection
+				if (!obj->is_volumetric_object && obj->intersect(ray, intersection_point, normal))
 				{
 					//cout << intersection_point;
 					intensity_sum = 0;
@@ -93,21 +95,34 @@ void Scene::render(Image& image)
 
 						intensity_sum += Id + Is;
 					}
-					//normalize the intensity
-					//if (intensity_sum > 1) intensity_sum = 1;
-					//else if (intensity_sum < 0) intensity_sum = 0;
+
 					//update the pixel color
 					image.pixels[i][j] = obj->color * intensity_sum;
-					red_values.push_back(image.pixels[i][j].x);
-					green_values.push_back(image.pixels[i][j].y);
-					blue_values.push_back(image.pixels[i][j].z);
-					//cout << (light_intensity / 255) << " ";
+					//image.pixels[i][j] = (obj->color * intensity_sum).normalized() * 255;
+					
+					cout << "image color: " << intensity_sum;
 				}
+
+				//Volume Object intersection
+				if (obj->is_volumetric_object && obj->volumeIntersect(ray, t0, t1))
+				{
+					float distance = t1 - t0;
+					float transmission = exp(-distance * obj->m_params.sigma_a);
+					
+					image.pixels[i][j] = image.bg_color * transmission + obj->color * (1 - transmission);
+					//cout << " t: " << image.bg_color * transmission + obj->color * (1 - transmission);
+				}
+
+				//for normalization
+				red_values.push_back(image.pixels[i][j].x);
+				green_values.push_back(image.pixels[i][j].y);
+				blue_values.push_back(image.pixels[i][j].z);
 			}
 		}
 	}
 
 	//normilize the pixel colors
+	
 	float max_red = getMax(red_values);
 	float max_green = getMax(green_values);
 	float max_blue = getMax(blue_values);
@@ -123,6 +138,7 @@ void Scene::render(Image& image)
 			image.pixels[i][j] = Vector3(scaled_red, scaled_green, scaled_blue);
 		}
 	}
+	
 }
 
 

@@ -75,3 +75,9 @@ bool Triangle::intersect(const Ray& ray, Vector3& intersection_point, Vector3& n
 
     return true; // This ray hits the triangle
 }
+
+bool Triangle::volumeIntersect(const Ray& ray, float& t0, float& t1)
+{
+    //this is not a 3d object therefore no volume
+    return false;
+}

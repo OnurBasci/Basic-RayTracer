@@ -18,3 +18,9 @@ bool Plane::intersect(const Ray& ray, Vector3& intersection_point, Vector3& norm
 
 	return false;
 }
+
+bool Plane::volumeIntersect(const Ray& ray, float& t0, float& t1)
+{
+	//Not a 3d object therefore no volume
+	return false;
+}

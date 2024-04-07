@@ -33,3 +33,25 @@ bool Sphere::intersect(const Ray& ray, Vector3& intersection_point, Vector3& nor
 
 	return false;
 }
+
+bool Sphere::volumeIntersect(const Ray& ray, float& t0, float& t1)
+{
+	//This function calculates the entrance and exit intersection
+
+	//let's calculate the coefficients
+	float a = ray.direction * ray.direction;
+	float b = 2 * (ray.direction * (ray.center - center));
+	float c = (ray.center - center) * (ray.center - center) - radius * radius;
+
+	float delta = b * b - 4 * a * c;
+
+	if (delta >= 0)
+	{
+		t0 = (-b - sqrt(delta)) / (2 * a);
+		t1 = (-b + sqrt(delta)) / (2 * a);
+
+		return true;
+	}
+
+	return false;
+}

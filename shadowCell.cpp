@@ -49,7 +49,7 @@ void ShadowCell::CalculateVisibilityFunction()
 		cout << " d: " << hitDepthsForvisibility[i] << " t : " << visibilityFunction[i];
 	}
 	cout << "]\n";
-	*/
+	*/ 
 }
 
 void ShadowCell::CalculateSurfaceTransmittanceFunctions()

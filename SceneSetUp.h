@@ -21,4 +21,5 @@ public:
 
 	void render3BoxSceneSetUp();
 	void renderCylinderScene();
+	void volumetricObjectTestScene();
 };

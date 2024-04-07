@@ -11,4 +11,5 @@ public:
 	Plane(Vector3 center, Vector3 planeNormal, Vector3 color, MaterialParameters mParams);
 
 	bool intersect(const Ray& ray, Vector3& intersection_point, Vector3& normal) override;
+	bool volumeIntersect(const Ray& ray, float& t0, float& t1) override;
 };
