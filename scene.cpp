@@ -98,9 +98,8 @@ void Scene::render(Image& image)
 
 					//update the pixel color
 					image.pixels[i][j] = obj->color * intensity_sum;
-					//image.pixels[i][j] = (obj->color * intensity_sum).normalized() * 255;
 					
-					cout << "image color: " << intensity_sum;
+					cout << "image color: " << image.pixels[i][j];
 				}
 
 				//Volume Object intersection
@@ -122,8 +121,7 @@ void Scene::render(Image& image)
 	}
 
 	//normilize the pixel colors
-	
-	float max_red = getMax(red_values);
+	/*float max_red = getMax(red_values);
 	float max_green = getMax(green_values);
 	float max_blue = getMax(blue_values);
 	for (int i = 0; i < image.width; i++)
@@ -138,7 +136,7 @@ void Scene::render(Image& image)
 			image.pixels[i][j] = Vector3(scaled_red, scaled_green, scaled_blue);
 		}
 	}
-	
+	*/
 }
 
 

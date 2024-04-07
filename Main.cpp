@@ -33,9 +33,9 @@ int main(void)
     
     SceneSetUp sceneRenderer(numpixelX, numpixelY, deepShadowMapResolution, deepShadowMapSampleNum, false);
 
-    sceneRenderer.render3BoxSceneSetUp();
+    //sceneRenderer.render3BoxSceneSetUp();
     //sceneRenderer.renderCylinderScene();
-    //sceneRenderer.volumetricObjectTestScene();
+    sceneRenderer.volumetricObjectTestScene();
 
     return 0;
 }

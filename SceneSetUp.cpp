@@ -254,7 +254,7 @@ void SceneSetUp::volumetricObjectTestScene()
     PointLight* light1 = new PointLight(Vector3(3, 0, 0), Vector3(255, 255, 255), 20);
     lights.push_back(light1);
 
-    Sphere* volumetricSphere = new Sphere(Vector3(0, 0, 2), 1, Vector3(0, 255, 0), MaterialParameters(1, 0.5, 1, 1));
+    Sphere* volumetricSphere = new Sphere(Vector3(0, 0, 2), 1, Vector3(0, 255, 0), MaterialParameters(1, 0.5, 1, 0.5));
     volumetricSphere->is_volumetric_object = true;
 
     objects.push_back(volumetricSphere);
