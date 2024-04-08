@@ -130,6 +130,7 @@ float DeepShadowMap::getAveragesVisibilityFromWorldPos(Vector3 WorldPos)
     int kernelSize = 7;
     std::vector<std::vector<double>> kernel = MathHelper::generateGaussianKernel(kernelSize, 1);
 
+    //cout << "cell calculation(" << cellIndexI << "," << cellIndexJ << "): \n";
     for (int i = -kernelSize/2; i <= kernelSize/2; i++)
     {
         if (cellIndexI + i < 0 || cellIndexI + i >= mapResolution) continue;
@@ -139,7 +140,7 @@ float DeepShadowMap::getAveragesVisibilityFromWorldPos(Vector3 WorldPos)
             weight = kernel[i + kernelSize/2][j + kernelSize/2];
             normalizationValue += weight;
 
-            averageVisibility += shadowCells[(cellIndexI + i) * mapResolution + (cellIndexJ + j)].getVisibility(depth);
+            averageVisibility += shadowCells[(cellIndexI + i) * mapResolution + (cellIndexJ + j)].getVisibility(depth) * weight;
         }
     }
 

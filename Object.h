@@ -17,8 +17,8 @@ struct MaterialParameters {
 	MaterialParameters(float kd, float ks) : kd(kd), ks(ks), opacity(1), sigma_a(1), extinction_coefficient(1) {};
 	MaterialParameters(float kd, float ks, float opacity) : kd(kd), ks(ks), opacity(opacity), sigma_a(1), extinction_coefficient(1) {};
 	MaterialParameters(float kd, float ks, float opacity, float sigma_a) : kd(kd), ks(ks), opacity(opacity), sigma_a(sigma_a), extinction_coefficient(1) {};
-	MaterialParameters(float kd, float ks, float opacity, float sigma_a, float extinction_coef) :
-		 kd(kd), ks(ks), opacity(opacity), sigma_a(sigma_a), extinction_coefficient(extinction_coef), density(MathHelper::constantDesnity) {};
+	MaterialParameters(float kd, float ks, float opacity, float sigma_a, float extinction_coef, std::function<float(Vector3 pos)> density) :
+		 kd(kd), ks(ks), opacity(opacity), sigma_a(sigma_a), extinction_coefficient(extinction_coef), density(density) {};
 };
 
 //This is an abstract class that contains commun methods for each object

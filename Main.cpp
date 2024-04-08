@@ -31,7 +31,7 @@ int main(void)
     float deepShadowMapResolution = 32;
     float deepShadowMapSampleNum = 16;
     
-    SceneSetUp sceneRenderer(numpixelX, numpixelY, deepShadowMapResolution, deepShadowMapSampleNum, false);
+    SceneSetUp sceneRenderer(numpixelX, numpixelY, deepShadowMapResolution, deepShadowMapSampleNum, true);
 
     //sceneRenderer.render3BoxSceneSetUp();
     //sceneRenderer.renderCylinderScene();

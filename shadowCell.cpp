@@ -34,9 +34,9 @@ void ShadowCell::CalculateVisibilityFunction()
 	sort(hitDepthsForvisibility.begin(), hitDepthsForvisibility.end());
 
 	//calculate transmittance for each of the depth by averaging surface transmittance value (to normalize)
-	float transmittance;
+	float transmittance; 
 	for (float depth : hitDepthsForvisibility)
-	{
+	{ 
 		transmittance = 0;
 		for (int functionIdex = 0; functionIdex < sampleNumber; functionIdex++)
 		{
@@ -47,14 +47,14 @@ void ShadowCell::CalculateVisibilityFunction()
 	}
 
 
-	/*
-	cout << "visibility function of index(" << i << ", " << j << "): [";
+	
+	/*cout << "visibility function of index(" << i << ", " << j << "): [";
 	for (int i = 0; i < visibilityFunction.size(); i++)
 	{
 		cout << " d: " << hitDepthsForvisibility[i] << " t : " << visibilityFunction[i];
 	}
 	cout << "]\n";
-	*/ 
+	*/
 }
 
 void ShadowCell::CalculateTransmittanceFunctions()
@@ -78,23 +78,22 @@ void ShadowCell::CalculateTransmittanceFunctions()
 		CalculateSurfaceTransmittanceFunctionFromARay(sampleIndex, sampleRay, belongingShadowMap->objects);
 		CalculateVolumeTransmittanceFunctionFromARay(sampleIndex, sampleRay, belongingShadowMap->objects);
 
-		//calculate transmittance function by mutliplying volume function with the surface function
+		//calculate transmittance function by mutliplying volume function with the surface function t = ts * tv
 		int surfaceIndex = 0, volumeIndex = 0;
-		int counter = 0;
 		while (surfaceIndex < surfaceTransmittance[sampleIndex].size() && volumeIndex < volumeTransmittance[sampleIndex].size())
 		{
 			float surface_depth = hitDepths[sampleIndex][surfaceIndex];
 			float volume_depth = hitDepthsVolume[sampleIndex][volumeIndex];
 			if (surface_depth < volume_depth)
 			{
-				transmittance[sampleIndex][counter] = getSurfaceTransmittanceValue(sampleIndex, surfaceIndex) * getVolumeTransmittanceValue(sampleIndex, volumeIndex);
-				hitDepthsTransmittance[sampleIndex][counter] = surface_depth;
+				transmittance[sampleIndex].push_back(getSurfaceTransmittanceValue(sampleIndex, surfaceIndex) * getVolumeTransmittanceValue(sampleIndex, surface_depth));
+				hitDepthsTransmittance[sampleIndex].push_back(surface_depth);
 				surfaceIndex++;
 			}
-			else
+			else 
 			{
-				transmittance[sampleIndex][counter] = getSurfaceTransmittanceValue(sampleIndex, surfaceIndex) * getVolumeTransmittanceValue(sampleIndex, volumeIndex);
-				hitDepthsTransmittance[sampleIndex][counter] = volume_depth;
+				transmittance[sampleIndex].push_back(getSurfaceTransmittanceValue(sampleIndex, volume_depth) * getVolumeTransmittanceValue(sampleIndex, volumeIndex));
+				hitDepthsTransmittance[sampleIndex].push_back(volume_depth);
 				volumeIndex++;
 			}
 		}
@@ -103,16 +102,16 @@ void ShadowCell::CalculateTransmittanceFunctions()
 		{
 			for (int i = 0; i < volumeTransmittance[sampleIndex].size() - volumeIndex; i++)
 			{
-				transmittance[sampleIndex][counter + i] = getSurfaceTransmittanceValue(sampleIndex, surfaceIndex) * getVolumeTransmittanceValue(sampleIndex, volumeIndex + i);
-				hitDepthsTransmittance[sampleIndex][counter+i] = hitDepthsVolume[sampleIndex][volumeIndex + i];
+				transmittance[sampleIndex].push_back(getSurfaceTransmittanceValue(sampleIndex, surfaceIndex) * getVolumeTransmittanceValue(sampleIndex, volumeIndex + i));
+				hitDepthsTransmittance[sampleIndex].push_back(hitDepthsVolume[sampleIndex][volumeIndex + i]);
 			}
 		}
 		else if(volumeIndex >= volumeTransmittance[sampleIndex].size())
 		{
 			for (int i = 0; i < surfaceTransmittance[sampleIndex].size() - surfaceIndex; i++)
 			{
-				transmittance[sampleIndex][counter + i] = getSurfaceTransmittanceValue(sampleIndex, surfaceIndex + i) * getVolumeTransmittanceValue(sampleIndex, volumeIndex);
-				hitDepthsTransmittance[sampleIndex][counter + i] = hitDepths[sampleIndex][surfaceIndex + i];
+				transmittance[sampleIndex].push_back(getSurfaceTransmittanceValue(sampleIndex, surfaceIndex + i) * getVolumeTransmittanceValue(sampleIndex, volumeIndex));
+				hitDepthsTransmittance[sampleIndex].push_back(hitDepths[sampleIndex][surfaceIndex + i]);
 			}
 		}
 	}
@@ -219,6 +218,8 @@ void ShadowCell::CalculateVolumeTransmittanceFunctionFromARay(int sampleIndex, R
 	volumeTransmittance[sampleIndex].push_back(1);
 	hitDepthsVolume[sampleIndex].push_back(0);
 
+	if (depthExtinctionVector.empty()) return;
+
 	//calculate volume transmitance function
 	float transmittance = 1;
 	for (int i = 0; i < depthExtinctionVector.size()-1; i++)
@@ -291,6 +292,33 @@ float ShadowCell::getSurfaceTransmittanceValue(int functionIndex, int depthIndex
 	if (depthIndex <= 0) return 1;
 
 	return surfaceTransmittance[functionIndex][depthIndex - 1];
+}
+
+float ShadowCell::getVolumeTransmittanceValue(int functionIndex, float depth)
+{
+	//this function calculates the volume transmittance value of a volume transmittance function for a given depth
+	//the value is calculated by a linear interpolation between the last and current vertex
+
+	int depthIndex = 0;
+	float currentDepth;
+	for (int i = 0; i < hitDepths[functionIndex].size(); i++)
+	{
+		currentDepth = hitDepths[functionIndex][i];
+
+		if (depth < currentDepth) break;
+
+		depthIndex++;
+	}
+	//depth is higher than the final depth than return the last transmittance
+	if (depthIndex >= hitDepths[functionIndex].size() - 1) return surfaceTransmittance[functionIndex].back();
+	//if depth is lower than the first depth return 1 
+	if (depthIndex <= 0) return 1;
+
+	float lastVolumeTransmittance = volumeTransmittance[functionIndex][depthIndex - 1];
+	float nextVolumeTransmittance = volumeTransmittance[functionIndex][depthIndex];
+	float distNormalized = (depth - hitDepthsVolume[functionIndex][depthIndex - 1]) / (hitDepthsVolume[functionIndex][depthIndex] - hitDepthsVolume[functionIndex][depthIndex - 1]);
+
+	return lastVolumeTransmittance * (1 - distNormalized) + nextVolumeTransmittance * distNormalized;
 }
 
 float ShadowCell::getVolumeTransmittanceValue(int functionIndex, int depthIndex)

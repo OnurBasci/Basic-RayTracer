@@ -38,6 +38,7 @@ public:
 	float getSurfaceTransmittanceValue(int functionIndex, int depthIndex);
 
 	float getVolumeTransmittanceValue(int functionIndex, int depthIndex);
+	float getVolumeTransmittanceValue(int functionIndex, float depth);
 
 	float getTransmittanceValue(int functionIndex, float depth);
 

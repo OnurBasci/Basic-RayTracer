@@ -105,6 +105,7 @@ void Scene::render(Image& image)
 				//Volume Object intersection
 				if (obj->is_volumetric_object && obj->volumeIntersect(ray, t0, t1))
 				{
+					//volume absorption calculation
 					float distance = t1 - t0;
 					float transmission = exp(-distance * obj->m_params.sigma_a);
 					
@@ -147,6 +148,7 @@ void Scene::renderWithShadowMap(Image& image, DeepShadowMap* shadowMap)
 	Vector3 normal(1, 0, 0);
 	Vector3 light_dir(0, 0, 0);
 	Vector3 light_intensity(0, 0, 0);
+	float t0, t1; //intersection values
 
 	Vector3 pixelValue(0, 0, 0);
 	float intensity_sum = 0;
@@ -174,33 +176,48 @@ void Scene::renderWithShadowMap(Image& image, DeepShadowMap* shadowMap)
 
 				if (obj->intersect(ray, intersection_point, normal))
 				{
-					//cout << intersection_point;
-					intensity_sum = 0;
-					//calculate color for all lights
-					for (Light* light : pointLights)
+					//Solid objec intersection
+					if (!obj->is_volumetric_object && obj->intersect(ray, intersection_point, normal))
 					{
-						light->at(intersection_point, light_dir, light_intensity);
+						intensity_sum = 0;
+						//calculate color for all lights
+						for (Light* light : pointLights)
+						{
+							light->at(intersection_point, light_dir, light_intensity);
+
+							//Shadow calculations
+							visibility = shadowMap->getAveragesVisibilityFromWorldPos(intersection_point);
+							//visibility = shadowMap->getVisibilityFromWorldPos(intersection_point);
+
+							//light calculation
+							//diffusion
+							Id = obj->m_params.kd * (normal * light_dir.normalized()) * light_intensity.length();
+
+							//specular
+							Vector3 I = ray.direction.normalized();
+							Vector3 S = I - normal * 2 * (I * normal);
+							Is = obj->m_params.ks * light_intensity.length() * (S * light_dir.normalized());
+
+							intensity_sum += Id + Is;
+						}
+						image.pixels[i][j] = obj->color * intensity_sum * visibility;
+					}
+					//Volume Object intersection
+					if (obj->is_volumetric_object && obj->volumeIntersect(ray, t0, t1))
+					{
+						//volume absorption calculation
+						float distance = t1 - t0;
+						float transmission = exp(-distance * obj->m_params.sigma_a);
+
+						image.pixels[i][j] = image.bg_color * transmission + obj->color * (1 - transmission);
+						//cout << " t: " << image.bg_color * transmission + obj->color * (1 - transmission);
 
 						//Shadow calculations
 						visibility = shadowMap->getAveragesVisibilityFromWorldPos(intersection_point);
-						//visibility = shadowMap->getVisibilityFromWorldPos(intersection_point);
 
-						//light calculation
-						//diffusion
-						Id = obj->m_params.kd * (normal * light_dir.normalized()) * light_intensity.length();
-
-						//specular
-						Vector3 I = ray.direction.normalized();
-						Vector3 S = I - normal * 2 * (I * normal);
-						Is = obj->m_params.ks * light_intensity.length() * (S * light_dir.normalized());
-
-						intensity_sum += Id + Is;
+						image.pixels[i][j] = (image.bg_color * transmission + obj->color * (1 - transmission))*visibility;
 					}
-					//normalize the intensity
-					//if (intensity_sum > 1) intensity_sum = 1;
-					//else if (intensity_sum < 0) intensity_sum = 0;
 					//update the pixel color
-					image.pixels[i][j] = obj->color * intensity_sum * visibility;
 					red_values.push_back(image.pixels[i][j].x);
 					green_values.push_back(image.pixels[i][j].y);
 					blue_values.push_back(image.pixels[i][j].z);
@@ -209,8 +226,9 @@ void Scene::renderWithShadowMap(Image& image, DeepShadowMap* shadowMap)
 			}
 		}
 	}
-
+	
 	//normilize the pixel colors
+	/*
 	float max_red = getMax(red_values);
 	float max_green = getMax(green_values);
 	float max_blue = getMax(blue_values);
@@ -226,6 +244,7 @@ void Scene::renderWithShadowMap(Image& image, DeepShadowMap* shadowMap)
 			image.pixels[i][j] = Vector3(scaled_red, scaled_green, scaled_blue);
 		}
 	}
+	*/
 }
 
 
