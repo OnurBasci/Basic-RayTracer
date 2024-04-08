@@ -29,7 +29,7 @@ void ShadowCell::CalculateVisibilityFunction()
 	//merge and sort the depth of all transmittance functions
 	for (int i = 0; i < sampleNumber; i++)
 	{
-		hitDepthsForvisibility.insert(hitDepthsForvisibility.end(), hitDepths[i].begin(), hitDepths[i].end());
+		hitDepthsForvisibility.insert(hitDepthsForvisibility.end(), hitDepthsTransmittance[i].begin(), hitDepthsTransmittance[i].end());
 	}
 	sort(hitDepthsForvisibility.begin(), hitDepthsForvisibility.end());
 
@@ -47,14 +47,18 @@ void ShadowCell::CalculateVisibilityFunction()
 	}
 
 
-	
-	/*cout << "visibility function of index(" << i << ", " << j << "): [";
-	for (int i = 0; i < visibilityFunction.size(); i++)
+	/*
+	if (i == 14 && j == 28)
 	{
-		cout << " d: " << hitDepthsForvisibility[i] << " t : " << visibilityFunction[i];
+		cout << "visibility function of index(" << i << ", " << j << "): [";
+		for (int i = 0; i < visibilityFunction.size(); i++)
+		{
+			cout << " d: " << hitDepthsForvisibility[i] << " t : " << visibilityFunction[i];
+		}
+		cout << "]\n";
 	}
-	cout << "]\n";
 	*/
+	
 }
 
 void ShadowCell::CalculateTransmittanceFunctions()

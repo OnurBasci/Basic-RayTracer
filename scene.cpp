@@ -216,6 +216,7 @@ void Scene::renderWithShadowMap(Image& image, DeepShadowMap* shadowMap)
 						visibility = shadowMap->getAveragesVisibilityFromWorldPos(intersection_point);
 
 						image.pixels[i][j] = (image.bg_color * transmission + obj->color * (1 - transmission))*visibility;
+
 					}
 					//update the pixel color
 					red_values.push_back(image.pixels[i][j].x);
