@@ -221,7 +221,7 @@ void ShadowCell::CalculateVolumeTransmittanceFunctionFromARay(int sampleIndex, R
 	if (depthExtinctionVector.empty()) return;
 
 	//calculate volume transmitance function
-	float transmittance = 1;
+	float transmittance = 1; 
 	for (int i = 0; i < depthExtinctionVector.size()-1; i++)
 	{
 		float ti = exp(-(depthExtinctionVector[i + 1].depth - depthExtinctionVector[i].depth) * (depthExtinctionVector[i + 1].extinction + depthExtinctionVector[i].extinction)/2);

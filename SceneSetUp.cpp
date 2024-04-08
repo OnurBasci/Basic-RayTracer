@@ -252,12 +252,21 @@ void SceneSetUp::volumetricObjectTestScene()
     //Set Camera and Lightning
     Camera camera(1, Vector3(0, 0, -4), Vector3(0, 0, 1), Vector3(-1, 0, 0), 1, 1, numPixelX, numPixelY);
 
-    PointLight* light1 = new PointLight(Vector3(3, 0, 0), Vector3(255, 255, 255), 20);
+    PointLight* light1 = new PointLight(Vector3(0, 0, -4), Vector3(255, 255, 255), 20);
     lights.push_back(light1);
 
-    Sphere* volumetricSphere = new Sphere(Vector3(0, 0, 0), 1, Vector3(255, 255, 255), MaterialParameters(1, 0.5, 1, 0.5, 0.5, MathHelper::perlin_noise));
+    Sphere* volumetricSphere = new Sphere(Vector3(0, 0, 0), 1, Vector3(255, 255, 255), MaterialParameters(1, 0.2, 0.2, 0.2, 4, 0.5, MathHelper::perlin_noise));
     volumetricSphere->is_volumetric_object = true;
 
+    //add floor
+    float size = 5;
+    Vector3 p1(-1 * size, 1* size, 3);
+    Vector3 p2(1*size, 1*size, 3);
+    Vector3 p3(-1*size,-1*size, 3);
+
+    Rectangle* floor = new Rectangle(p1, p2, p3, Vector3(255,255,255), MaterialParameters(1, 0.5, 1));
+
+    objects.push_back(floor);
     objects.push_back(volumetricSphere);
 
     Image image(numPixelX, numPixelY);

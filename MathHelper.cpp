@@ -83,6 +83,8 @@ int p[512] = {
     222, 114,  67,  29,  24,  72, 243, 141, 128, 195,  78,  66, 215,  61, 156, 180
 };
 
+float scaling_factor = 8;
+
 double MathHelper::fade(double t) { return t * t * t * (t * (t * 6 - 15) + 10); }
 double MathHelper::lerp(double t, double a, double b) { return a + t * (b - a); }
 double MathHelper::grad(int hash, double x, double y, double z) { 
@@ -94,6 +96,8 @@ double MathHelper::grad(int hash, double x, double y, double z) {
 
 double MathHelper::perlin_noise(Vector3 pos)
 {
+    pos = pos * scaling_factor;
+
     int X = (int)floor(pos.x) & 255,
         Y = (int)floor(pos.y) & 255,
         Z = (int)floor(pos.z) & 255;

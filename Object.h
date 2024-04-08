@@ -10,15 +10,16 @@ struct MaterialParameters {
 	float ks; // specularity coefficient
 	float opacity; //for the surface transmittance function
 	float sigma_a; //for volumetric objects
+	float sigma_s; //in scattering
 	float extinction_coefficient; //for volume transmittance function
 	std::function<float(Vector3 pos)> density; //density function that gives the density from a 3d point in space
 
-	MaterialParameters() : kd(1), ks(1), opacity(1), sigma_a(1), extinction_coefficient(1) {}
-	MaterialParameters(float kd, float ks) : kd(kd), ks(ks), opacity(1), sigma_a(1), extinction_coefficient(1) {};
-	MaterialParameters(float kd, float ks, float opacity) : kd(kd), ks(ks), opacity(opacity), sigma_a(1), extinction_coefficient(1) {};
-	MaterialParameters(float kd, float ks, float opacity, float sigma_a) : kd(kd), ks(ks), opacity(opacity), sigma_a(sigma_a), extinction_coefficient(1) {};
-	MaterialParameters(float kd, float ks, float opacity, float sigma_a, float extinction_coef, std::function<float(Vector3 pos)> density) :
-		 kd(kd), ks(ks), opacity(opacity), sigma_a(sigma_a), extinction_coefficient(extinction_coef), density(density) {};
+	MaterialParameters() : kd(1), ks(1), opacity(1), sigma_a(1), sigma_s(1), extinction_coefficient(1) {}
+	MaterialParameters(float kd, float ks) : kd(kd), ks(ks), opacity(1), sigma_a(1), sigma_s(1), extinction_coefficient(1) {};
+	MaterialParameters(float kd, float ks, float opacity) : kd(kd), ks(ks), opacity(opacity), sigma_a(1), sigma_s(1), extinction_coefficient(1) {};
+	MaterialParameters(float kd, float ks, float opacity, float sigma_a) : kd(kd), ks(ks), opacity(opacity), sigma_a(sigma_a), sigma_s(1), extinction_coefficient(1) {};
+	MaterialParameters(float kd, float ks, float opacity, float sigma_a, float sigma_s, float extinction_coef, std::function<float(Vector3 pos)> density) :
+		 kd(kd), ks(ks), opacity(opacity), sigma_a(sigma_a), sigma_s(sigma_s), extinction_coefficient(extinction_coef), density(density) {};
 };
 
 //This is an abstract class that contains commun methods for each object

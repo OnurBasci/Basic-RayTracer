@@ -167,7 +167,7 @@ void Scene::renderWithShadowMap(Image& image, DeepShadowMap* shadowMap)
 	{
 		for (int j = 0; j < image.height; j++)
 		{
-			//cout << " current pixel(" << i << ", " << j << ") ";
+			//cout << "(" << i << ", " << j << ") \n";
 			Ray ray = camera.pixelToRay(i, j);
 
 			//cout << ray.direction << " ";
@@ -214,19 +214,47 @@ void Scene::renderWithShadowMap(Image& image, DeepShadowMap* shadowMap)
 						step_size = (t1 - t0) / num_sample;
 
 						float transmission = 1;
+						Vector3 result(0, 0, 0);
+						Vector3 lightColor(255, 255, 255);
 
-						//Ray marching to find the extinction values
+						
+						float sigma_t = obj->m_params.sigma_a + obj->m_params.sigma_s; // extinction coefficient
 						for (int i = 0; i < num_sample; i++)
 						{
 							float t = t0 + step_size * (i + 0.5);
 							Vector3 sample = ray.center + ray.direction * t;
+							
+							transmission *= exp(-step_size * obj->m_params.density(sample) * sigma_t);
+							
+							
+							// in scattering
+							Ray to_light_Ray(sample, shadowMap->position);
+							
+							float t0_light, t1_light;
+							if (obj->volumeIntersect(to_light_Ray, t0_light, t1_light)) {
 
-							transmission *= exp(-step_size * obj->m_params.density(sample));
+								size_t num_steps_light = std::ceil(t1_light / step_size);
+								float stide_light = t1_light / num_steps_light;
+
+								float tau = 0;
+								// Ray-march along the light ray. Store the density values in the tau variable.
+								for (size_t nl = 0; nl < num_steps_light; ++nl) {
+									float t_light = stide_light * (nl + 0.5);
+									Vector3 light_sample_pos = sample + light_dir * t_light;
+									tau += obj->m_params.density(light_sample_pos);
+								}
+								float light_ray_att = exp(-tau * stide_light * sigma_t);
+
+								result = result + lightColor * light_ray_att * obj->m_params.sigma_s * transmission * step_size * obj->m_params.density(sample);
+							}
+							
 						}
 
-						visibility = shadowMap->getAveragesVisibilityFromWorldPos(intersection_point);
+						//visibility = shadowMap->getAveragesVisibilityFromWorldPos(intersection_point);
 
-						image.pixels[i][j] = (image.bg_color * transmission + obj->color * (1 - transmission)) * visibility;
+						//image.pixels[i][j] = (image.bg_color * transmission + obj->color * (1 - transmission));
+						image.pixels[i][j] = (image.bg_color * transmission + result);
+						//cout << "color: " << image.pixels[i][j];
 					}
 					//update the pixel color
 					red_values.push_back(image.pixels[i][j].x);
