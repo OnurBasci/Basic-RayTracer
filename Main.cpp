@@ -29,7 +29,7 @@ int main(void)
     float numpixelX = 500;//increase these for smoothness
     float numpixelY = 500;
     float deepShadowMapResolution = 128;
-    float deepShadowMapSampleNum = 128;
+    float deepShadowMapSampleNum = 8;
     
     SceneSetUp sceneRenderer(numpixelX, numpixelY, deepShadowMapResolution, deepShadowMapSampleNum, true);
 

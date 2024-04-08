@@ -206,18 +206,27 @@ void Scene::renderWithShadowMap(Image& image, DeepShadowMap* shadowMap)
 					//Volume Object intersection
 					if (obj->is_volumetric_object && obj->volumeIntersect(ray, t0, t1))
 					{
-						//volume absorption calculation
-						float distance = t1 - t0;
-						float transmission = exp(-distance * obj->m_params.sigma_a);
+						
+						//Ray marching to calculate absorption
+						//get the correct step size 
+						float step_size = 0.1f;
+						int num_sample = std::ceil((t1 - t0) / step_size);
+						step_size = (t1 - t0) / num_sample;
 
-						image.pixels[i][j] = image.bg_color * transmission + obj->color * (1 - transmission);
-						//cout << " t: " << image.bg_color * transmission + obj->color * (1 - transmission);
+						float transmission = 1;
 
-						//Shadow calculations
+						//Ray marching to find the extinction values
+						for (int i = 0; i < num_sample; i++)
+						{
+							float t = t0 + step_size * (i + 0.5);
+							Vector3 sample = ray.center + ray.direction * t;
+
+							transmission *= exp(-step_size * obj->m_params.density(sample));
+						}
+
 						visibility = shadowMap->getAveragesVisibilityFromWorldPos(intersection_point);
 
-						image.pixels[i][j] = (image.bg_color * transmission + obj->color * (1 - transmission))*visibility;
-
+						image.pixels[i][j] = (image.bg_color * transmission + obj->color * (1 - transmission)) * visibility;
 					}
 					//update the pixel color
 					red_values.push_back(image.pixels[i][j].x);

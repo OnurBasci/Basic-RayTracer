@@ -1,13 +1,15 @@
 #include"DeepShadowMap.h"
 #include"ShadowCell.h"
 #include"MahtHelper.h"
+#include <chrono>
 
 
 DeepShadowMap::DeepShadowMap(list<Object*> objects,  double _focal_length, const Vector3& _position, const Vector3& _target_point, const Vector3& _up_vector, \
     float v_width, float v_height, float mapRes, float sampleNum): focal_length(_focal_length), position(_position), target_point(_target_point), up_vector(_up_vector),
     viewport_height(v_height), viewport_width(v_width), mapResolution(mapRes), samplePerCell(sampleNum)
 {
-    
+    cout << "Deep shadow map Initilaization:";
+    auto start = std::chrono::steady_clock::now(); 
 
     this->objects = objects;
     
@@ -36,13 +38,24 @@ DeepShadowMap::DeepShadowMap(list<Object*> objects,  double _focal_length, const
             shadowCells.push_back(newCell);
         }
     }
-    cout << "done";
+
+    auto end = std::chrono::steady_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+    std::cout << "Time taken: " << duration.count() << " milliseconds" << std::endl;
+
+    cout << "Visibility function calculation :";
+    start = std::chrono::steady_clock::now();
+
     //Calculate Volume functions for each of the shadowCells
     for (int i = 0; i < mapResolution * mapResolution; i++)
     {
         //cout << " current pixel:" << i;
         shadowCells[i].CalculateVisibilityFunction(); 
     }
+
+    end = std::chrono::steady_clock::now();
+    duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+    std::cout << "Time taken: " << duration.count() << " milliseconds" << std::endl;
 
     //Calculate a virtual rectangle object to help us find the intersection on the shadow map
     Vector3 p0 = viewport_upper_left;
@@ -130,7 +143,7 @@ float DeepShadowMap::getAveragesVisibilityFromWorldPos(Vector3 WorldPos)
     float normalizationValue = 0;
 
     //create a kernel
-    int kernelSize = 11;
+    int kernelSize = 25;
     std::vector<std::vector<double>> kernel = MathHelper::generateGaussianKernel(kernelSize, 5);
     //std::vector<std::vector<double>> kernel = MathHelper::generateUniformKernel(kernelSize);
 

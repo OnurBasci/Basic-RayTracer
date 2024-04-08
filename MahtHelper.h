@@ -15,4 +15,10 @@ public:
 
     //density functions
     static float constantDesnity(Vector3 p);
+
+    //perlin noise
+    static double fade(double t);
+    static double lerp(double t, double a, double b);
+    static double grad(int hash, double x, double y, double z);
+    static double perlin_noise(Vector3 pos);
 };
