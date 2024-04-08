@@ -249,7 +249,7 @@ void SceneSetUp::renderCylinderScene()
 void SceneSetUp::volumetricObjectTestScene()
 {
     //Set Camera and Lightning
-    Camera camera(1, Vector3(0, 0, -2), Vector3(0, 0, 1), Vector3(-1, 0, 0), 1, 1, numPixelX, numPixelY);
+    Camera camera(1, Vector3(0, 0, -4), Vector3(0, 0, 1), Vector3(-1, 0, 0), 1, 1, numPixelX, numPixelY);
 
     PointLight* light1 = new PointLight(Vector3(3, 0, 0), Vector3(255, 255, 255), 20);
     lights.push_back(light1);

@@ -167,6 +167,7 @@ void Scene::renderWithShadowMap(Image& image, DeepShadowMap* shadowMap)
 	{
 		for (int j = 0; j < image.height; j++)
 		{
+			//cout << " current pixel(" << i << ", " << j << ") ";
 			Ray ray = camera.pixelToRay(i, j);
 
 			//cout << ray.direction << " ";

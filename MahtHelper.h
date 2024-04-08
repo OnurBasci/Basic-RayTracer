@@ -11,6 +11,7 @@ public:
     static double gaussian(double x, double mean, double sigma);
 
     static std::vector<std::vector<double>> generateGaussianKernel(int size, double sigma);
+    static std::vector<std::vector<double>> generateUniformKernel(int size);
 
     //density functions
     static float constantDesnity(Vector3 p);

@@ -45,18 +45,14 @@ void ShadowCell::CalculateVisibilityFunction()
 		}
 		visibilityFunction.push_back(transmittance / sampleNumber);
 	}
-
-
+	
 	/*
-	if (i == 14 && j == 28)
+	cout << "visibility function of index(" << i << ", " << j << "): [";
+	for (int i = 0; i < visibilityFunction.size(); i++)
 	{
-		cout << "visibility function of index(" << i << ", " << j << "): [";
-		for (int i = 0; i < visibilityFunction.size(); i++)
-		{
-			cout << " d: " << hitDepthsForvisibility[i] << " t : " << visibilityFunction[i];
-		}
-		cout << "]\n";
+		cout << " d: " << hitDepthsForvisibility[i] << " t : " << visibilityFunction[i];
 	}
+	cout << "]\n";
 	*/
 	
 }
@@ -195,7 +191,7 @@ void ShadowCell::CalculateVolumeTransmittanceFunctionFromARay(int sampleIndex, R
 	{
 		if (obj->is_volumetric_object && obj->volumeIntersect(ray, t0, t1))
 		{
-			//get the correct step size
+			//get the correct step size 
 			int num_sample = std::ceil((t1 - t0) / step_size);
 			step_size = (t1 - t0)/num_sample;
 			
@@ -351,7 +347,7 @@ float ShadowCell::getVisibility(float depth)
 	}
 	//depth is higher than the final depth than return the last transmittance
 	if (depthIndex >= hitDepthsForvisibility.size() - 1) return visibilityFunction.back();
-	//if depth is lower than the first depth return 1 
+	//if depth is lower than the first depth return 1  
 	if (depthIndex <= 0) return 1;
 
 	//Calculate a linear interpolation between the last and the next vertices

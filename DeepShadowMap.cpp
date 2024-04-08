@@ -7,8 +7,10 @@ DeepShadowMap::DeepShadowMap(list<Object*> objects,  double _focal_length, const
     float v_width, float v_height, float mapRes, float sampleNum): focal_length(_focal_length), position(_position), target_point(_target_point), up_vector(_up_vector),
     viewport_height(v_height), viewport_width(v_width), mapResolution(mapRes), samplePerCell(sampleNum)
 {
-    this->objects = objects;
+    
 
+    this->objects = objects;
+    
     up = _up_vector.normalized();
     forward = (target_point - position).normalized();
     right = forward.crossProduct(up_vector).normalized() * -1;
@@ -23,20 +25,22 @@ DeepShadowMap::DeepShadowMap(list<Object*> objects,  double _focal_length, const
         - viewport_u / 2 - viewport_v / 2;
 
     celll00_loc = viewport_upper_left + (pixel_delta_u + pixel_delta_v) * 0.5;
-
+    
     //intialize shadow cells
     for (int i = 0; i < mapResolution; i ++)
     {
         for (int j = 0; j < mapResolution; j ++)
         {
+            //cout << "(" << i << ", " << j << ") " << "\n";
             ShadowCell newCell(i, j, samplePerCell, this);
             shadowCells.push_back(newCell);
         }
     }
-
+    cout << "done";
     //Calculate Volume functions for each of the shadowCells
     for (int i = 0; i < mapResolution * mapResolution; i++)
     {
+        //cout << " current pixel:" << i;
         shadowCells[i].CalculateVisibilityFunction(); 
     }
 
@@ -118,7 +122,6 @@ float DeepShadowMap::getAveragesVisibilityFromWorldPos(Vector3 WorldPos)
     //check if the cell coordinates are in the map resolution
     //if the index is not in the range than the object is not defined in the shadow map so we return 1 for toatly visible
     if (cellIndexI > mapResolution || cellIndexI < 0 || cellIndexJ > mapResolution || cellIndexJ < 0) return 1;
-    if (cellIndexI == 14 && cellIndexJ == 28) cout << "here";
     float depth = (WorldPos - position).length();
 
     //Avarage visibility calculation
@@ -126,9 +129,10 @@ float DeepShadowMap::getAveragesVisibilityFromWorldPos(Vector3 WorldPos)
     float weight;
     float normalizationValue = 0;
 
-    //create a gaussian kernel
-    int kernelSize = 1;
-    std::vector<std::vector<double>> kernel = MathHelper::generateGaussianKernel(kernelSize, 1);
+    //create a kernel
+    int kernelSize = 11;
+    std::vector<std::vector<double>> kernel = MathHelper::generateGaussianKernel(kernelSize, 5);
+    //std::vector<std::vector<double>> kernel = MathHelper::generateUniformKernel(kernelSize);
 
     //cout << "cell calculation(" << cellIndexI << "," << cellIndexJ << "): \n";
     for (int i = -kernelSize/2; i <= kernelSize/2; i++)
@@ -143,7 +147,6 @@ float DeepShadowMap::getAveragesVisibilityFromWorldPos(Vector3 WorldPos)
             float vis = shadowCells[(cellIndexI + i) * mapResolution + (cellIndexJ + j)].getVisibility(depth);
             averageVisibility += vis * weight;
 
-            if (cellIndexI == 14 && cellIndexJ == 28) cout << " visibility(" << cellIndexI << "," << cellIndexJ << "): " << vis;
         }
     }
 
