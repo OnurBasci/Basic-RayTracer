@@ -34,3 +34,9 @@ std::vector<std::vector<double>> MathHelper::generateGaussianKernel(int size, do
 
     return kernel;
 }
+
+float MathHelper::constantDesnity(Vector3 point)
+{
+    //constant density returns 1 everywhere
+    return 1;
+}

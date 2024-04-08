@@ -10,17 +10,21 @@ ShadowCell::ShadowCell(int index_i, int index_j, int sampleNumber, DeepShadowMap
 	this->j = index_j;
 	this->sampleNumber = sampleNumber;
 	this->hitDepths = vector<vector<float>>(sampleNumber);
-	//this->hitDepths = new float*[sampleNumber];
+	this->hitDepthsVolume = vector<vector<float>>(sampleNumber);
+	this->hitDepthsTransmittance = vector<vector<float>>(sampleNumber);
+	this->volumeTransmittance = vector<vector<float>>(sampleNumber);
+	this->transmittance = vector<vector<float>>(sampleNumber);
 	this->surfaceTransmittance = vector<vector<float>>(sampleNumber);
+	this->volumeTransmittance = vector<vector<float>>(sampleNumber);
 	this->belongingShadowMap = belongingShadowMap;
 }
 
 void ShadowCell::CalculateVisibilityFunction()
 {
-	//This function calculates the volume function by averaging transmittance functions
+	//This function calculates the visibility function by averaging (same weight) transmittance functions 
 
 	//calculate surface transmittance functions
-	CalculateSurfaceTransmittanceFunctions();
+	CalculateTransmittanceFunctions();
 
 	//merge and sort the depth of all transmittance functions
 	for (int i = 0; i < sampleNumber; i++)
@@ -36,7 +40,8 @@ void ShadowCell::CalculateVisibilityFunction()
 		transmittance = 0;
 		for (int functionIdex = 0; functionIdex < sampleNumber; functionIdex++)
 		{
-			transmittance += getSurfaceTransmittanceValue(functionIdex, depth);
+			//transmittance += getSurfaceTransmittanceValue(functionIdex, depth);
+			transmittance += getTransmittanceValue(functionIdex, depth);
 		}
 		visibilityFunction.push_back(transmittance / sampleNumber);
 	}
@@ -52,7 +57,7 @@ void ShadowCell::CalculateVisibilityFunction()
 	*/ 
 }
 
-void ShadowCell::CalculateSurfaceTransmittanceFunctions()
+void ShadowCell::CalculateTransmittanceFunctions()
 {
 	//This function sample random positions on the cell and calculate the transmittance function for all of the points
 
@@ -71,6 +76,45 @@ void ShadowCell::CalculateSurfaceTransmittanceFunctions()
 		Ray sampleRay(belongingShadowMap->position, RayDirection);
 
 		CalculateSurfaceTransmittanceFunctionFromARay(sampleIndex, sampleRay, belongingShadowMap->objects);
+		CalculateVolumeTransmittanceFunctionFromARay(sampleIndex, sampleRay, belongingShadowMap->objects);
+
+		//calculate transmittance function by mutliplying volume function with the surface function
+		int surfaceIndex = 0, volumeIndex = 0;
+		int counter = 0;
+		while (surfaceIndex < surfaceTransmittance[sampleIndex].size() && volumeIndex < volumeTransmittance[sampleIndex].size())
+		{
+			float surface_depth = hitDepths[sampleIndex][surfaceIndex];
+			float volume_depth = hitDepthsVolume[sampleIndex][volumeIndex];
+			if (surface_depth < volume_depth)
+			{
+				transmittance[sampleIndex][counter] = getSurfaceTransmittanceValue(sampleIndex, surfaceIndex) * getVolumeTransmittanceValue(sampleIndex, volumeIndex);
+				hitDepthsTransmittance[sampleIndex][counter] = surface_depth;
+				surfaceIndex++;
+			}
+			else
+			{
+				transmittance[sampleIndex][counter] = getSurfaceTransmittanceValue(sampleIndex, surfaceIndex) * getVolumeTransmittanceValue(sampleIndex, volumeIndex);
+				hitDepthsTransmittance[sampleIndex][counter] = volume_depth;
+				volumeIndex++;
+			}
+		}
+		//fill the rest with the longer transmitance vector
+		if (surfaceIndex >= surfaceTransmittance[sampleIndex].size())
+		{
+			for (int i = 0; i < volumeTransmittance[sampleIndex].size() - volumeIndex; i++)
+			{
+				transmittance[sampleIndex][counter + i] = getSurfaceTransmittanceValue(sampleIndex, surfaceIndex) * getVolumeTransmittanceValue(sampleIndex, volumeIndex + i);
+				hitDepthsTransmittance[sampleIndex][counter+i] = hitDepthsVolume[sampleIndex][volumeIndex + i];
+			}
+		}
+		else if(volumeIndex >= volumeTransmittance[sampleIndex].size())
+		{
+			for (int i = 0; i < surfaceTransmittance[sampleIndex].size() - surfaceIndex; i++)
+			{
+				transmittance[sampleIndex][counter + i] = getSurfaceTransmittanceValue(sampleIndex, surfaceIndex + i) * getVolumeTransmittanceValue(sampleIndex, volumeIndex);
+				hitDepthsTransmittance[sampleIndex][counter + i] = hitDepths[sampleIndex][surfaceIndex + i];
+			}
+		}
 	}
 }
 
@@ -85,13 +129,13 @@ void ShadowCell::CalculateSurfaceTransmittanceFunctionFromARay(int sampleIndex, 
 {
 	Vector3 intersectionPoint, normal;
 
-	//deine a float2 vector to stock depth and corrsponding objects obacity to later sort them by the depth and calculate transmittance
+	//define a float2 vector to stock depth and corrsponding objects obacity to later sort them by the depth and calculate transmittance
 	vector<depthOpacity> depthOpacVector;
 
 	//Get the transmittance and opacity values
 	for (Object* obj : objects)
 	{
-		if (obj->intersect(ray, intersectionPoint, normal))
+		if (!obj->is_volumetric_object && obj->intersect(ray, intersectionPoint, normal))
 		{
 			float depth = (intersectionPoint - ray.center).length();
 			//update the transmittance
@@ -130,6 +174,90 @@ void ShadowCell::CalculateSurfaceTransmittanceFunctionFromARay(int sampleIndex, 
 	*/
 }
 
+struct depthExtinction {
+	float depth;
+	float extinction;
+
+	depthExtinction(float depth, float extinction) : depth(depth), extinction(extinction) {}
+};
+
+void ShadowCell::CalculateVolumeTransmittanceFunctionFromARay(int sampleIndex, Ray ray, list<Object*> objects)
+{
+	//define a float2 vector to stock depth and corrsponding objects extinction to later sort them by the depth and calculate transmittance
+	vector<depthExtinction> depthExtinctionVector;
+
+	//Get the transmittance and opacity values
+	float t0, t1;
+	for (Object* obj : objects)
+	{
+		if (obj->is_volumetric_object && obj->volumeIntersect(ray, t0, t1))
+		{
+			//get the correct step size
+			int num_sample = std::ceil((t1 - t0) / step_size);
+			step_size = (t1 - t0)/num_sample;
+			
+			//Ray marching to find the extinction values
+			for (int i = 0; i < num_sample; i++)
+			{
+				float t = t0 + step_size * (i + 0.5);
+				Vector3 sample = ray.center + ray.direction * t;
+
+				float depth = (sample - ray.center).length();
+				float extinction = obj->m_params.extinction_coefficient * obj->m_params.density(sample);
+
+				depthExtinctionVector.push_back(depthExtinction(depth, extinction));
+			}
+		}
+	}
+
+	//sort the depth extinction vector by the depth
+	sort(depthExtinctionVector.begin(), depthExtinctionVector.end(), [](const depthExtinction& a, const depthExtinction& b)
+		{ return a.depth < b.depth; });
+
+	//calculate transmittance function. Every hit creates 2 verticies, discontinuous function
+	//the transmittance start by 1
+	volumeTransmittance[sampleIndex].push_back(1);
+	hitDepthsVolume[sampleIndex].push_back(0);
+
+	//calculate volume transmitance function
+	float transmittance = 1;
+	for (int i = 0; i < depthExtinctionVector.size()-1; i++)
+	{
+		float ti = exp(-(depthExtinctionVector[i + 1].depth - depthExtinctionVector[i].depth) * (depthExtinctionVector[i + 1].extinction + depthExtinctionVector[i].extinction)/2);
+		transmittance *= ti;
+		volumeTransmittance[sampleIndex].push_back(transmittance);
+		hitDepthsVolume[sampleIndex].push_back(depthExtinctionVector[i].depth);
+	}
+}
+
+float ShadowCell::getTransmittanceValue(int functionIndex, float depth)
+{
+	//this function calculates the transmittance value of a transmittance function for a given depth
+	//the value is calculated by a linear interpolation between the last and current vertex
+
+	int depthIndex = 0;
+	float currentDepth;
+	for (int i = 0; i < hitDepthsTransmittance[functionIndex].size(); i++)
+	{
+		currentDepth = hitDepthsTransmittance[functionIndex][i];
+
+		if (depth < currentDepth) break;
+
+		depthIndex++;
+	}
+	//depth is higher than the final depth than return the last transmittance
+	if (depthIndex >= hitDepthsTransmittance[functionIndex].size() - 1) return transmittance[functionIndex].back();
+	//if depth is lower than the first depth return 1 
+	if (depthIndex <= 0) return 1;
+
+	//linear interpolation
+	float lastTransmittance = transmittance[functionIndex][depthIndex - 1];
+	float nextTransmittance = transmittance[functionIndex][depthIndex];
+	float distNormalized = (depth - hitDepthsTransmittance[functionIndex][depthIndex - 1]) / (hitDepthsTransmittance[functionIndex][depthIndex] - hitDepthsTransmittance[functionIndex][depthIndex - 1]);
+
+	return lastTransmittance * (1 - distNormalized) + nextTransmittance * distNormalized;
+}
+
 float ShadowCell::getSurfaceTransmittanceValue(int functionIndex, float depth)
 {
 	//this function calculates the surface transmittance value of a surface transmittance function for a given depth
@@ -151,15 +279,28 @@ float ShadowCell::getSurfaceTransmittanceValue(int functionIndex, float depth)
 	if (depthIndex <= 0) return 1;
 
 	return surfaceTransmittance[functionIndex][depthIndex-1];
+}
 
-	/*
-	//linear interpolatio
-	float lastTransmittance = surfaceTransmittance[functionIndex][depthIndex-1];
-	float nextTransmittance = surfaceTransmittance[functionIndex][depthIndex];
-	float distNormalized = (depth - hitDepths[functionIndex][depthIndex-1])/(hitDepths[functionIndex][depthIndex] - hitDepths[functionIndex][depthIndex-1]);
 
-	return lastTransmittance * (1 - distNormalized) + nextTransmittance * distNormalized;
-	*/
+
+float ShadowCell::getSurfaceTransmittanceValue(int functionIndex, int depthIndex)
+{
+	//depth is higher than the final depth than return the last transmittance
+	if (depthIndex >= hitDepths[functionIndex].size() - 1) return surfaceTransmittance[functionIndex].back();
+	//if depth is lower than the first depth return 1 
+	if (depthIndex <= 0) return 1;
+
+	return surfaceTransmittance[functionIndex][depthIndex - 1];
+}
+
+float ShadowCell::getVolumeTransmittanceValue(int functionIndex, int depthIndex)
+{
+	//depth is higher than the final depth than return the last transmittance
+	if (depthIndex >= hitDepthsVolume[functionIndex].size() - 1) return volumeTransmittance[functionIndex].back();
+	//if depth is lower than the first depth return 1 
+	if (depthIndex <= 0) return 1;
+
+	return volumeTransmittance[functionIndex][depthIndex];
 }
 
 float ShadowCell::getVisibility(float depth) 
