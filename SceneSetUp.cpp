@@ -80,6 +80,7 @@ void SceneSetUp::render3BoxSceneSetUp()
     objects.push_back(rect3);
     objects.push_back(rect2);
 
+    /*
     //box 2
     box1Center = Vector3(1, 0, 11);
     width = 0.2f;
@@ -181,7 +182,7 @@ void SceneSetUp::render3BoxSceneSetUp()
     objects.push_back(rect1);
     objects.push_back(rect3);
     objects.push_back(rect2);
-
+    */
     
     //Render the Scene
     Image image(numPixelX, numPixelY);
@@ -219,7 +220,7 @@ void SceneSetUp::renderCylinderScene()
 
     for (float i = 0; i < 120; i++)
     {
-        objects.push_back(new Cylinder(Vector3(((static_cast<float>(rand()) / RAND_MAX)-0.5), 0, ((static_cast<float>(rand()) / RAND_MAX) - 0.5) * 2), 0.01, Vector3(255, 255, 0), MaterialParameters()));
+        objects.push_back(new Cylinder(Vector3(((static_cast<float>(rand()) / RAND_MAX)-0.5), 0, ((static_cast<float>(rand()) / RAND_MAX) - 0.5) * 2), 0.01, 10, Vector3(255, 255, 0), MaterialParameters()));
     }
 
     //objects.push_back(new Cylinder(Vector3(0, 0, 0), 0.05, Vector3(255,255,0), MaterialParameters()));
@@ -252,11 +253,11 @@ void SceneSetUp::volumetricObjectTestScene()
     //Set Camera and Lightning
     Camera camera(1, Vector3(0, 0, -4), Vector3(0, 0, 1), Vector3(-1, 0, 0), 1, 1, numPixelX, numPixelY);
 
-    PointLight* light1 = new PointLight(Vector3(0, 0, -4), Vector3(255, 255, 255), 20);
+    PointLight* light1 = new PointLight(Vector3(4, 0, 0), Vector3(255, 255, 255), 20);
     lights.push_back(light1);
 
-    //Sphere* volumetricSphere = new Sphere(Vector3(0, 0, 0), 1, Vector3(255, 255, 255), MaterialParameters(1, 0.2, 0.2, 0.2, 4, 0.5, MathHelper::perlin_noise));
-    //volumetricSphere->is_volumetric_object = true;
+    Sphere* volumetricSphere = new Sphere(Vector3(0, 0, 0), 1, Vector3(255, 255, 255), MaterialParameters(1, 0.2, 0.2, 0.2, 4, 0.5, MathHelper::perlin_noise));
+    volumetricSphere->is_volumetric_object = true;
 
     //add floor
     float size = 5;
@@ -266,8 +267,8 @@ void SceneSetUp::volumetricObjectTestScene()
 
     Rectangle* floor = new Rectangle(p1, p2, p3, Vector3(255,255,255), MaterialParameters(1, 0.5, 1));
 
-    objects.push_back(floor);
-    //objects.push_back(volumetricSphere);
+    //objects.push_back(floor);
+    objects.push_back(volumetricSphere);
 
     Image image(numPixelX, numPixelY);
 
@@ -300,6 +301,152 @@ void SceneSetUp::volumetricObjectTestScene()
         std::cout << "Time taken: " << duration.count() << " milliseconds" << std::endl;
     }
 
+    image.write("render.ppm");
+}
+
+void SceneSetUp::box_volumetric_interraction()
+{
+    //Set Camera and Lightning
+    Camera camera(1, Vector3(4, 0, 0), Vector3(4 - 0.3, 0, 1), Vector3(-1, 0, 0), 1, 1, numPixelX, numPixelY);
+
+    PointLight* light1 = new PointLight(Vector3(8, 0, 11), Vector3(255, 255, 255), 20);
+    //PointLight light2(Vector3(3, 4, -1), Vector3(255, 255, 255), 20);
+
+    lights.push_back(light1);
+    //lights.push_back(light2);
+
+    //Set Objects
+    //box 1
+    Vector3 box1Center(-2, 0, 11);
+    float width = 0.1;
+    float height = 4;
+    float depth = 4;
+    Vector3 color(255, 0, 0);
+    //rectangle 1
+    Vector3 p1(box1Center.x - width, box1Center.y - height, box1Center.z - depth);
+    Vector3 p2(box1Center.x - width, box1Center.y - height, box1Center.z + depth);
+    Vector3 p3(box1Center.x - width, box1Center.y + height, box1Center.z - depth);
+
+    Rectangle* rect1 = new Rectangle(p1, p2, p3, color, MaterialParameters(1, 0.5, 0.1));
+    rect1->id = 1;
+
+    //rectangle 2
+    Vector3 p21(box1Center.x - width, box1Center.y - height, box1Center.z - depth);
+    Vector3 p22(box1Center.x - width, box1Center.y + height, box1Center.z - depth);
+    Vector3 p23(box1Center.x + width, box1Center.y - height, box1Center.z - depth);
+
+    Rectangle* rect2 = new Rectangle(p21, p22, p23, color, MaterialParameters(1, 0.5, 0.1));
+    rect2->id = 1;
+
+    //rectangle 3
+    Vector3 p31(box1Center.x + width, box1Center.y - height, box1Center.z - depth);
+    Vector3 p32(box1Center.x + width, box1Center.y + height, box1Center.z - depth);
+    Vector3 p33(box1Center.x + width, box1Center.y - height, box1Center.z + depth);
+
+    Rectangle* rect3 = new Rectangle(p31, p32, p33, color, MaterialParameters(1, 0.5, 0.1));
+    rect3->id = 1;
+
+    objects.push_back(rect1);
+    objects.push_back(rect3);
+    objects.push_back(rect2);
+
+    //volumetric object
+    Sphere* volumetricSphere = new Sphere(Vector3(2, 0, 11), 3, Vector3(255, 255, 255), MaterialParameters(1, 0.2, 0.2, 0.2, 4, 0.5, MathHelper::perlin_noise));
+    volumetricSphere->is_volumetric_object = true;
+
+    objects.push_back(volumetricSphere);
+
+    //Render the Scene
+    Image image(numPixelX, numPixelY);
+
+    Scene scene(camera, objects, lights);
+
+    if (useDeepShadowMap)
+    {
+        DeepShadowMap* deepShadowMap = new DeepShadowMap(objects, 1, light1->position, Vector3(-2, 0, 11), Vector3(0, 1, 0), 1, 1, deepShadowMapRes, deepShadowMapSample);
+        scene.renderWithShadowMap(image, deepShadowMap);
+        delete deepShadowMap;
+    }
+    else
+    {
+        scene.render(image);
+    }
+
+    //scene.renderWithShadowMap(image, deepShadowMap);
+    image.write("render.ppm");
+
+}
+
+void SceneSetUp::cylinder_box_interaction()
+{
+    //Set Camera and Lightning
+    Camera camera(1, Vector3(4, 0, 0), Vector3(4 - 0.3, 0, 1), Vector3(-1, 0, 0), 1, 1, numPixelX, numPixelY);
+    
+    PointLight* light1 = new PointLight(Vector3(8, 0, 11), Vector3(255, 255, 255), 20);
+    //PointLight light2(Vector3(3, 4, -1), Vector3(255, 255, 255), 20);
+
+    lights.push_back(light1);
+    //lights.push_back(light2);
+
+    //Set Objects
+    //box 1
+    Vector3 box1Center(-2, 0, 11);
+    float width = 0.1;
+    float height = 4;
+    float depth = 4;
+    Vector3 color(255, 0, 0);
+    //rectangle 1
+    Vector3 p1(box1Center.x - width, box1Center.y - height, box1Center.z - depth);
+    Vector3 p2(box1Center.x - width, box1Center.y - height, box1Center.z + depth);
+    Vector3 p3(box1Center.x - width, box1Center.y + height, box1Center.z - depth);
+
+    Rectangle* rect1 = new Rectangle(p1, p3, p2, color, MaterialParameters(1, 0.5, 0.1));
+    rect1->id = 1;
+
+    //rectangle 2
+    Vector3 p21(box1Center.x - width, box1Center.y - height, box1Center.z - depth);
+    Vector3 p22(box1Center.x - width, box1Center.y + height, box1Center.z - depth);
+    Vector3 p23(box1Center.x + width, box1Center.y - height, box1Center.z - depth);
+
+    Rectangle* rect2 = new Rectangle(p21, p23, p22, color, MaterialParameters(1, 0.5, 0.1));
+    rect2->id = 2;
+
+    //rectangle 3
+    Vector3 p31(box1Center.x + width, box1Center.y - height, box1Center.z - depth);
+    Vector3 p32(box1Center.x + width, box1Center.y + height, box1Center.z - depth);
+    Vector3 p33(box1Center.x + width, box1Center.y - height, box1Center.z + depth);
+
+    Rectangle* rect3 = new Rectangle(p31, p33, p32, color, MaterialParameters(1, 0.5, 0.1));
+    rect3->id = 3;
+
+    objects.push_back(rect1);
+    objects.push_back(rect3);
+    objects.push_back(rect2);
+
+    //add cylinders
+    
+    for (float i = 0; i < 60; i++)
+    {
+        objects.push_back(new Cylinder(Vector3(((static_cast<float>(rand()) / RAND_MAX) - 0.5) + 2, 0, ((static_cast<float>(rand()) / RAND_MAX) - 0.5) * 2 + 11), 0.01, 1, Vector3(255, 255, 0), MaterialParameters()));
+    }
+
+    //Render the Scene
+    Image image(numPixelX, numPixelY);
+
+    Scene scene(camera, objects, lights);
+
+    if (useDeepShadowMap)
+    {
+        DeepShadowMap* deepShadowMap = new DeepShadowMap(objects, 1, light1->position, Vector3(-2, 0, 11), Vector3(0, 1, 0), 1, 1, deepShadowMapRes, deepShadowMapSample);
+        scene.renderWithShadowMap(image, deepShadowMap);
+        delete deepShadowMap;
+    }
+    else
+    {
+        scene.render(image);
+    }
+
+    //scene.renderWithShadowMap(image, deepShadowMap);
     image.write("render.ppm");
 }
 

@@ -188,21 +188,20 @@ void Scene::renderWithShadowMap(Image& image, DeepShadowMap* shadowMap)
 
 							//Shadow calculations
 							visibility = shadowMap->getAveragesVisibilityFromWorldPos(intersection_point);
-							//visibility = shadowMap->getVisibilityFromWorldPos(intersection_point);
 
-							//cout << visibility << "\n";
-
-							//light calculation
 							//diffusion
-							Id = obj->m_params.kd * (normal * light_dir.normalized()) * light_intensity.length();
+							float clamped_light_intensity = std::max(0.0f, std::min(1.0f, light_intensity.length()));
+							Id = obj->m_params.kd * (normal * (light_dir.normalized() * -1)) * clamped_light_intensity;
 
 							//specular
 							Vector3 I = ray.direction.normalized();
-							Vector3 S = I - normal * 2 * (I * normal);
-							Is = obj->m_params.ks * light_intensity.length() * (S * light_dir.normalized());
+							Vector3 S = (I - normal * 2 * (I * normal)).normalized();
+							Is = obj->m_params.ks * clamped_light_intensity * (S * light_dir.normalized()*-1);
 
 							intensity_sum += Id + Is;
+
 						}
+
 						image.pixels[i][j] = obj->color * intensity_sum * visibility;
 					}
 					//Volume Object intersection
@@ -253,9 +252,10 @@ void Scene::renderWithShadowMap(Image& image, DeepShadowMap* shadowMap)
 						}
 
 						//visibility = shadowMap->getAveragesVisibilityFromWorldPos(intersection_point);
+						visibility = 1;
 
 						//image.pixels[i][j] = (image.bg_color * transmission + obj->color * (1 - transmission));
-						image.pixels[i][j] = (image.bg_color * transmission + result);
+						image.pixels[i][j] = (image.bg_color * transmission + result) * visibility;
 						//cout << "color: " << image.pixels[i][j];
 					}
 					//update the pixel color
@@ -270,6 +270,7 @@ void Scene::renderWithShadowMap(Image& image, DeepShadowMap* shadowMap)
 	
 	//normilize the pixel colors
 	
+	/*
 	float max_red = getMax(red_values);
 	float max_green = getMax(green_values);
 	float max_blue = getMax(blue_values);
@@ -285,7 +286,7 @@ void Scene::renderWithShadowMap(Image& image, DeepShadowMap* shadowMap)
 			image.pixels[i][j] = Vector3(scaled_red, scaled_green, scaled_blue);
 		}
 	}
-	
+	*/
 }
 
 

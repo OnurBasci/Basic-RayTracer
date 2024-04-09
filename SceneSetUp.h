@@ -22,4 +22,6 @@ public:
 	void render3BoxSceneSetUp();
 	void renderCylinderScene();
 	void volumetricObjectTestScene();
+	void box_volumetric_interraction();
+	void cylinder_box_interaction();
 };

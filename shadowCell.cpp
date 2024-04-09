@@ -46,8 +46,8 @@ void ShadowCell::CalculateVisibilityFunction()
 		visibilityFunction.push_back(transmittance / sampleNumber);
 	}
 	
-	
-	/*cout << "visibility function of index(" << i << ", " << j << "): [";
+	/*
+	cout << "visibility function of index(" << i << ", " << j << "): [";
 	for (int i = 0; i < visibilityFunction.size(); i++)
 	{
 		cout << " d: " << hitDepthsForvisibility[i] << " t : " << visibilityFunction[i];
@@ -106,7 +106,7 @@ void ShadowCell::CalculateTransmittanceFunctions()
 				hitDepthsTransmittance[sampleIndex].push_back(hitDepthsVolume[sampleIndex][volumeIndex + i]);
 			}
 		}
-		else if(volumeIndex >= volumeTransmittance[sampleIndex].size())
+		else if(volumeIndex >= volumeTransmittance[sampleIndex].size()) 
 		{
 			for (int i = 0; i < surfaceTransmittance[sampleIndex].size() - surfaceIndex; i++)
 			{
@@ -131,7 +131,7 @@ void ShadowCell::CalculateSurfaceTransmittanceFunctionFromARay(int sampleIndex, 
 	//define a float2 vector to stock depth and corrsponding objects obacity to later sort them by the depth and calculate transmittance
 	vector<depthOpacity> depthOpacVector;
 
-	//Get the transmittance and opacity values
+	//Get the transmittance and opacity values 
 	for (Object* obj : objects)
 	{
 		if (!obj->is_volumetric_object && obj->intersect(ray, intersectionPoint, normal))

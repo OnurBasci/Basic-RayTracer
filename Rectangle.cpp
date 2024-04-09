@@ -22,12 +22,16 @@ Rectangle::Rectangle(Vector3 p1, Vector3 p2, Vector3 p3, Vector3 color, Material
 
 bool Rectangle::intersect(const Ray& ray, Vector3& intersection_point, Vector3& normal)
 {
-    if (triangle1.intersect(ray, intersection_point, normal))
+    Vector3 buffer;
+    normal = this->tNormal;
+    if (triangle1.intersect(ray, intersection_point, buffer))
     {
+        intersection_point = intersection_point + normal * 1;
         return true;
     }
-    else if (triangle2.intersect(ray, intersection_point, normal))
+    else if (triangle2.intersect(ray, intersection_point, buffer))
     {
+        intersection_point = intersection_point + normal * 1;
         return true;
     }
     return false;

@@ -157,7 +157,9 @@ float DeepShadowMap::getAveragesVisibilityFromWorldPos(Vector3 WorldPos)
             weight = kernel[i + kernelSize/2][j + kernelSize/2];
             normalizationValue += weight;
 
-            float vis = shadowCells[(cellIndexI + i) * mapResolution + (cellIndexJ + j)].getVisibility(depth);
+            
+            float vis = shadowCells[(cellIndexJ + j) * mapResolution + (cellIndexI + i)].getVisibility(depth);
+               
             averageVisibility += vis * weight;
 
         }

@@ -3,9 +3,10 @@
 
 using namespace std;
 
-Cylinder::Cylinder(Vector3 center, float radius, Vector3 color, MaterialParameters mParams) : Object(center, color, mParams)
+Cylinder::Cylinder(Vector3 center, float radius, float length, Vector3 color, MaterialParameters mParams) : Object(center, color, mParams)
 {
 	this->radius = radius;
+	this->length = length;
 }
 
 
@@ -28,8 +29,10 @@ bool Cylinder::intersect(const Ray& ray, Vector3& intersection_point, Vector3& n
 		normal.y = 0;
 		normal = normal.normalized();
 		
-		//push the intersection a bit in the direction of the normal
-		//intersection_point = intersection_point + normal * 0.5;
+		//check length
+		float dist = (intersection_point - center).length();
+
+		if (dist > length) return false;
 
 		return true;
 	}
