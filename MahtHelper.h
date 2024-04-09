@@ -21,4 +21,6 @@ public:
     static double lerp(double t, double a, double b);
     static double grad(int hash, double x, double y, double z);
     static double perlin_noise(Vector3 pos);
+    static double abs_perlin_noise(Vector3 pos);
+    static double non_zero_perlin_noise(Vector3 pos);
 };

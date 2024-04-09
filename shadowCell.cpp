@@ -343,10 +343,10 @@ float ShadowCell::getVisibility(float depth)
 
 		if (depth < currentDepth) break;
 
-		depthIndex++;
+		depthIndex++; 
 	}
 	//depth is higher than the final depth than return the last transmittance
-	if (depthIndex >= hitDepthsForvisibility.size() - 1) return visibilityFunction.back();
+	if (depthIndex >= hitDepthsForvisibility.size() - 1) return visibilityFunction.back(); 
 	//if depth is lower than the first depth return 1  
 	if (depthIndex <= 0) return 1;
 

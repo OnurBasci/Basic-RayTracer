@@ -143,7 +143,7 @@ float DeepShadowMap::getAveragesVisibilityFromWorldPos(Vector3 WorldPos)
     float normalizationValue = 0;
 
     //create a kernel
-    int kernelSize = 1;
+    int kernelSize = 5;
     std::vector<std::vector<double>> kernel = MathHelper::generateGaussianKernel(kernelSize, 5);
     //std::vector<std::vector<double>> kernel = MathHelper::generateUniformKernel(kernelSize);
 

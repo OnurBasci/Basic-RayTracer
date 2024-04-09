@@ -37,10 +37,6 @@ void Scene::render(Image& image)
 	Vector3 shadow_check_intersect_point(0, 0, 0);
 	Vector3 shadow_check_normal(0, 0, 0);
 
-	//to normalize the colors
-	list<float> red_values;
-	list<float> green_values;
-	list<float> blue_values;
 	//Calculate rays foreach pixel
 	for (int i = 0; i < image.width; i ++)
 	{
@@ -49,6 +45,8 @@ void Scene::render(Image& image)
 			Ray ray = camera.pixelToRay(i, j);
 
 			//cout << ray.direction << " ";
+
+			cout << "pixel (" << i << "," << j << ")\n";
 
 			//Check intersection for all objects
 			for (Object* obj : objects) {
@@ -86,20 +84,21 @@ void Scene::render(Image& image)
 
 						//light calculation
 						//diffusion
-						Id = obj->m_params.kd * (normal*light_dir.normalized()) * light_intensity.length();
+						float clamped_light_intensity = std::max(0.0f, std::min(1.0f, light_intensity.length()));
+						Id = obj->m_params.kd * (normal*light_dir.normalized()) * clamped_light_intensity;
 
 						//specular
 						Vector3 I = ray.direction.normalized();
 						Vector3 S = I - normal * 2 * (I * normal);
-						Is = obj->m_params.ks * light_intensity.length() * (S * light_dir.normalized());
+						Is = obj->m_params.ks * clamped_light_intensity * (S * light_dir.normalized());
 
 						intensity_sum += Id + Is;
 					}
 
+					intensity_sum = std::max(0.0f, std::min(1.0f, intensity_sum));
+
 					//update the pixel color
 					image.pixels[i][j] = obj->color * intensity_sum;
-					
-					cout << "image color: " << image.pixels[i][j];
 				}
 
 				//Volume Object intersection
@@ -113,31 +112,9 @@ void Scene::render(Image& image)
 					//cout << " t: " << image.bg_color * transmission + obj->color * (1 - transmission);
 				}
 
-				//for normalization
-				red_values.push_back(image.pixels[i][j].x);
-				green_values.push_back(image.pixels[i][j].y);
-				blue_values.push_back(image.pixels[i][j].z);
 			}
 		}
 	}
-
-	//normilize the pixel colors
-	/*float max_red = getMax(red_values);
-	float max_green = getMax(green_values);
-	float max_blue = getMax(blue_values);
-	for (int i = 0; i < image.width; i++)
-	{
-		for (int j = 0; j < image.height; j++)
-		{
-			if (image.pixels[i][j].x == image.bg_color.x && image.pixels[i][j].y == image.bg_color.y && image.pixels[i][j].z == image.bg_color.z)
-				continue;
-			float scaled_red = (max_red > 0) ? (1 - ((max_red - image.pixels[i][j].x) / max_red))*255 : 0;
-			float scaled_green = (max_green > 0) ? (1 - ((max_green - image.pixels[i][j].y) / max_green))*255 : 0;
-			float scaled_blue = (max_blue > 0) ? (1 - ((max_blue - image.pixels[i][j].z) / max_blue))*255 : 0;
-			image.pixels[i][j] = Vector3(scaled_red, scaled_green, scaled_blue);
-		}
-	}
-	*/
 }
 
 
@@ -191,16 +168,19 @@ void Scene::renderWithShadowMap(Image& image, DeepShadowMap* shadowMap)
 
 							//diffusion
 							float clamped_light_intensity = std::max(0.0f, std::min(1.0f, light_intensity.length()));
-							Id = obj->m_params.kd * (normal * (light_dir.normalized() * -1)) * clamped_light_intensity;
+							Id = obj->m_params.kd * (normal * (light_dir.normalized())) * clamped_light_intensity;
 
 							//specular
 							Vector3 I = ray.direction.normalized();
 							Vector3 S = (I - normal * 2 * (I * normal)).normalized();
-							Is = obj->m_params.ks * clamped_light_intensity * (S * light_dir.normalized()*-1);
+							Is = obj->m_params.ks * clamped_light_intensity * (S * light_dir.normalized());
 
 							intensity_sum += Id + Is;
 
+							//if (obj->id == 3) cout << intensity_sum << " ";
 						}
+
+						intensity_sum = std::max(0.0f, std::min(1.0f, intensity_sum));
 
 						image.pixels[i][j] = obj->color * intensity_sum * visibility;
 					}
@@ -210,14 +190,13 @@ void Scene::renderWithShadowMap(Image& image, DeepShadowMap* shadowMap)
 						
 						//Ray marching to calculate absorption
 						//get the correct step size 
-						float step_size = 0.1f;
+						float step_size = 0.05f;
 						int num_sample = std::ceil((t1 - t0) / step_size);
 						step_size = (t1 - t0) / num_sample;
 
 						float transmission = 1;
 						Vector3 result(0, 0, 0);
 						Vector3 lightColor(255, 255, 255);
-
 						
 						float sigma_t = obj->m_params.sigma_a + obj->m_params.sigma_s; // extinction coefficient
 						for (int i = 0; i < num_sample; i++)
@@ -229,8 +208,9 @@ void Scene::renderWithShadowMap(Image& image, DeepShadowMap* shadowMap)
 							
 							
 							// in scattering
-							Ray to_light_Ray(sample, shadowMap->position);
-							
+							light_dir = shadowMap->position - sample;
+							Ray to_light_Ray(sample, light_dir);
+
 							float t0_light, t1_light;
 							if (obj->volumeIntersect(to_light_Ray, t0_light, t1_light)) {
 
@@ -250,43 +230,19 @@ void Scene::renderWithShadowMap(Image& image, DeepShadowMap* shadowMap)
 							}
 							
 						}
-
+						
 						//visibility = shadowMap->getAveragesVisibilityFromWorldPos(intersection_point);
 						visibility = 1;
 
-						//image.pixels[i][j] = (image.bg_color * transmission + obj->color * (1 - transmission));
+						//image.pixels[i][j] = (image.bg_color * transmission + obj->color * (1 - transmission)) * visibility;
 						image.pixels[i][j] = (image.bg_color * transmission + result) * visibility;
 						//cout << "color: " << image.pixels[i][j];
 					}
-					//update the pixel color
-					red_values.push_back(image.pixels[i][j].x);
-					green_values.push_back(image.pixels[i][j].y);
-					blue_values.push_back(image.pixels[i][j].z);
-					//cout << (light_intensity / 255) << " ";
 				}
 			}
 		}
 	}
 	
-	//normilize the pixel colors
-	
-	/*
-	float max_red = getMax(red_values);
-	float max_green = getMax(green_values);
-	float max_blue = getMax(blue_values);
-	for (int i = 0; i < image.width; i++)
-	{
-		for (int j = 0; j < image.height; j++)
-		{
-			if (image.pixels[i][j].x == image.bg_color.x && image.pixels[i][j].y == image.bg_color.y && image.pixels[i][j].z == image.bg_color.z)
-				continue;
-			float scaled_red = (max_red > 0) ? (1 - ((max_red - image.pixels[i][j].x) / max_red)) * 255 : 0;
-			float scaled_green = (max_green > 0) ? (1 - ((max_green - image.pixels[i][j].y) / max_green)) * 255 : 0;
-			float scaled_blue = (max_blue > 0) ? (1 - ((max_blue - image.pixels[i][j].z) / max_blue)) * 255 : 0;
-			image.pixels[i][j] = Vector3(scaled_red, scaled_green, scaled_blue);
-		}
-	}
-	*/
 }
 
 
