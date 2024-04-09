@@ -81,7 +81,7 @@ void SceneSetUp::render3BoxSceneSetUp()
     objects.push_back(rect2);
 
     //box 2
-    /*box1Center = Vector3(1, 0, 11);
+    box1Center = Vector3(1, 0, 11);
     width = 0.2f;
     height = 2;
     depth = 2;
@@ -182,7 +182,7 @@ void SceneSetUp::render3BoxSceneSetUp()
     objects.push_back(rect3);
     objects.push_back(rect2);
 
-    */
+    
     //Render the Scene
     Image image(numPixelX, numPixelY);
 
@@ -255,8 +255,8 @@ void SceneSetUp::volumetricObjectTestScene()
     PointLight* light1 = new PointLight(Vector3(0, 0, -4), Vector3(255, 255, 255), 20);
     lights.push_back(light1);
 
-    Sphere* volumetricSphere = new Sphere(Vector3(0, 0, 0), 1, Vector3(255, 255, 255), MaterialParameters(1, 0.2, 0.2, 0.2, 4, 0.5, MathHelper::perlin_noise));
-    volumetricSphere->is_volumetric_object = true;
+    //Sphere* volumetricSphere = new Sphere(Vector3(0, 0, 0), 1, Vector3(255, 255, 255), MaterialParameters(1, 0.2, 0.2, 0.2, 4, 0.5, MathHelper::perlin_noise));
+    //volumetricSphere->is_volumetric_object = true;
 
     //add floor
     float size = 5;
@@ -267,7 +267,7 @@ void SceneSetUp::volumetricObjectTestScene()
     Rectangle* floor = new Rectangle(p1, p2, p3, Vector3(255,255,255), MaterialParameters(1, 0.5, 1));
 
     objects.push_back(floor);
-    objects.push_back(volumetricSphere);
+    //objects.push_back(volumetricSphere);
 
     Image image(numPixelX, numPixelY);
 

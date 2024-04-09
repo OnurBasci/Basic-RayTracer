@@ -190,6 +190,8 @@ void Scene::renderWithShadowMap(Image& image, DeepShadowMap* shadowMap)
 							visibility = shadowMap->getAveragesVisibilityFromWorldPos(intersection_point);
 							//visibility = shadowMap->getVisibilityFromWorldPos(intersection_point);
 
+							//cout << visibility << "\n";
+
 							//light calculation
 							//diffusion
 							Id = obj->m_params.kd * (normal * light_dir.normalized()) * light_intensity.length();
@@ -267,7 +269,7 @@ void Scene::renderWithShadowMap(Image& image, DeepShadowMap* shadowMap)
 	}
 	
 	//normilize the pixel colors
-	/*
+	
 	float max_red = getMax(red_values);
 	float max_green = getMax(green_values);
 	float max_blue = getMax(blue_values);
@@ -283,7 +285,7 @@ void Scene::renderWithShadowMap(Image& image, DeepShadowMap* shadowMap)
 			image.pixels[i][j] = Vector3(scaled_red, scaled_green, scaled_blue);
 		}
 	}
-	*/
+	
 }
 
 
