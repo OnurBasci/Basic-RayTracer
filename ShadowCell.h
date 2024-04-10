@@ -44,5 +44,7 @@ public:
 
 	float getVisibility(float depth); 
 
-	void CalculateVisibilityFunction(); 
+	void CalculateVisibilityFunction();
+
+	void visibility_function_compression(float error_margin);
 };

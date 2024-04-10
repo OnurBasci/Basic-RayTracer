@@ -1,6 +1,7 @@
 #include"ShadowCell.h"
 #include"Vector3.h"
 #include"DeepShadowMap.h"
+#include<math.h>
 #include<vector>
 #include <algorithm>
 
@@ -12,7 +13,6 @@ ShadowCell::ShadowCell(int index_i, int index_j, int sampleNumber, DeepShadowMap
 	this->hitDepths = vector<vector<float>>(sampleNumber);
 	this->hitDepthsVolume = vector<vector<float>>(sampleNumber);
 	this->hitDepthsTransmittance = vector<vector<float>>(sampleNumber);
-	this->volumeTransmittance = vector<vector<float>>(sampleNumber);
 	this->transmittance = vector<vector<float>>(sampleNumber);
 	this->surfaceTransmittance = vector<vector<float>>(sampleNumber);
 	this->volumeTransmittance = vector<vector<float>>(sampleNumber);
@@ -47,7 +47,7 @@ void ShadowCell::CalculateVisibilityFunction()
 	}
 	
 	/*
-	cout << "visibility function of index(" << i << ", " << j << "): [";
+	cout << "Before Compression: visibility function of index(" << i << ", " << j << "): [";
 	for (int i = 0; i < visibilityFunction.size(); i++)
 	{
 		cout << " d: " << hitDepthsForvisibility[i] << " t : " << visibilityFunction[i];
@@ -55,6 +55,8 @@ void ShadowCell::CalculateVisibilityFunction()
 	cout << "]\n";
 	*/
 	
+	visibility_function_compression(0.05); 
+
 }
 
 void ShadowCell::CalculateTransmittanceFunctions()
@@ -358,4 +360,84 @@ float ShadowCell::getVisibility(float depth)
 	return lastVisibility * (1 - distNormalized) + nextVisibility * distNormalized;
 }
 
+void ShadowCell::visibility_function_compression(float error_margin)
+{
+	//this function compresses the visibility function by keeping a given error margin. Fiind V' such that for all z |V'(z) - V(z)| < error
+
+	float upper_slope;
+	float lower_slope;
+	float current_upper_slope=0, current_lower_slope=0;
+
+	int i = 0;
+	float z_i = hitDepthsForvisibility[0];
+	
+	vector<float> compressed_visibility;
+	vector<float> compressed_depths;
+	
+	compressed_visibility.push_back(visibilityFunction[0]);
+	compressed_depths.push_back(hitDepthsForvisibility[0]);
+
+	while (i < hitDepthsForvisibility.size()-1)
+	{
+		//cout << "(" << hitDepthsForvisibility.size()-1 << ", " << i << ")\n";
+		z_i = hitDepthsForvisibility[i];
+
+		
+		float counter = 0;
+		float upper_slope = INFINITY;
+		float lower_slope = -INFINITY;
+		current_upper_slope = (visibilityFunction[i + counter + 1] + error_margin - visibilityFunction[i]) / (hitDepthsForvisibility[i + counter + 1] - z_i);;
+		current_lower_slope = (visibilityFunction[i + counter + 1] - error_margin - visibilityFunction[i]) / (hitDepthsForvisibility[i + counter + 1] - z_i);;
+		while (!(current_upper_slope < lower_slope || current_lower_slope > upper_slope)) //check intersection
+		{
+			//Check the end of the visibility function
+			if (i + counter + 1 > visibilityFunction.size()-1) break;
+
+			counter++;
+
+			//update the last slope
+			upper_slope = min(upper_slope, current_upper_slope);
+			lower_slope = max(lower_slope, current_lower_slope);
+
+			//slope calculation
+			current_upper_slope = (visibilityFunction[i + counter] + error_margin - visibilityFunction[i]) / (hitDepthsForvisibility[i + counter] - z_i);
+			current_lower_slope = (visibilityFunction[i + counter] - error_margin - visibilityFunction[i]) / (hitDepthsForvisibility[i + counter] - z_i);
+		}
+
+		//compression
+		if(!(i + counter + 1 >visibilityFunction.size()-1))
+			counter--;
+
+		//check division by zero
+		if (hitDepthsForvisibility[i + counter] - z_i != 0)
+		{
+			float new_depth = hitDepthsForvisibility[i + counter];
+
+			current_upper_slope = (visibilityFunction[i + counter] + error_margin - visibilityFunction[i]) / (hitDepthsForvisibility[i + counter] - z_i);
+			current_lower_slope = (visibilityFunction[i + counter] - error_margin - visibilityFunction[i]) / (hitDepthsForvisibility[i + counter] - z_i);
+			float middle_slope = (current_upper_slope + current_lower_slope) / 2;
+
+			//We try to calculate a linear function in form of f(x)=ax+b to calculate f(new_depth)=ax+b, a is the slope so we first calculate b
+			float b = visibilityFunction[i] - middle_slope * z_i;
+			float new_visibility = middle_slope * new_depth + b;
+
+			compressed_depths.push_back(new_depth);
+			compressed_visibility.push_back(new_visibility);
+		}
+
+		i += counter;
+	}
+
+	visibilityFunction = compressed_visibility;
+	hitDepthsForvisibility = compressed_depths;
+
+	/*
+	cout << "After Compression: visibility function of index(" << i << ", " << j << "): [";
+	for (int i = 0; i < visibilityFunction.size(); i++)
+	{
+		cout << " d: " << hitDepthsForvisibility[i] << " t : " << visibilityFunction[i];
+	}
+	cout << "]\n";
+	*/
+}
 

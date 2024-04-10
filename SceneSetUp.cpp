@@ -426,7 +426,7 @@ void SceneSetUp::cylinder_box_interaction()
 
     //add cylinders
     
-    for (float i = 0; i < 3; i++)
+    for (float i = 0; i < 60; i++)
     {
         objects.push_back(new Cylinder(Vector3(((static_cast<float>(rand()) / RAND_MAX) - 0.5) + 2, 0, ((static_cast<float>(rand()) / RAND_MAX) - 0.5) * 2 + 11), 0.01, 1, Vector3(255, 255, 0), MaterialParameters(0.5,0.5,1)));
     }
