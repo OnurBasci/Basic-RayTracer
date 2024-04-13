@@ -1,6 +1,7 @@
 #include"Scene.h"
 #include<cmath>
 #include<list>
+#include<chrono>
 using namespace std;
 
 Scene::Scene(Camera camera, list<Object*> objects, list<Light*> ligths){
@@ -24,6 +25,10 @@ float getMax(const std::list<float>& values);
 
 void Scene::render(Image& image)
 {
+	cout << "rendering:";
+	auto start = std::chrono::steady_clock::now();
+
+
 	Vector3 intersection_point(0,0,0);
 	Vector3 normal(1, 0, 0);
 	Vector3 light_dir(0, 0, 0);
@@ -115,11 +120,18 @@ void Scene::render(Image& image)
 			}
 		}
 	}
+
+	auto end = std::chrono::steady_clock::now();
+	auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+	std::cout << "Time taken: " << duration.count() << " milliseconds" << std::endl;
 }
 
 
 void Scene::renderWithShadowMap(Image& image, DeepShadowMap* shadowMap)
 {
+	cout << "rendering:";
+	auto start = std::chrono::steady_clock::now();
+
 	//This function renders shadows with a deep shadow map
 	Vector3 intersection_point(0, 0, 0);
 	Vector3 normal(1, 0, 0);
@@ -208,10 +220,12 @@ void Scene::renderWithShadowMap(Image& image, DeepShadowMap* shadowMap)
 							
 							
 							// in scattering
+							
 							light_dir = shadowMap->position - sample;
 							Ray to_light_Ray(sample, light_dir);
 
-							float t0_light, t1_light;
+							//In scattering with ray marching (You can uncomment this to compare shadows)
+							/*float t0_light, t1_light;
 							if (obj->volumeIntersect(to_light_Ray, t0_light, t1_light)) {
 
 								size_t num_steps_light = std::ceil(t1_light / step_size);
@@ -227,22 +241,30 @@ void Scene::renderWithShadowMap(Image& image, DeepShadowMap* shadowMap)
 								float light_ray_att = exp(-tau * stide_light * sigma_t);
 
 								result = result + lightColor * light_ray_att * obj->m_params.sigma_s * transmission * step_size * obj->m_params.density(sample);
-							}
+							}*/
+
+							//self shadowing with visibility function
+							float light_ray_att = shadowMap->getVisibilityFromWorldPos(sample);
+							result = result + lightColor * light_ray_att * obj->m_params.sigma_s * transmission * step_size * obj->m_params.density(sample);
 							
+							//cout << " " << light_ray_att << " ";
+							//result = lightColor * light_ray_att * obj->m_params.sigma_s * transmission;
 						}
 						
 						//visibility = shadowMap->getAveragesVisibilityFromWorldPos(intersection_point);
-						visibility = 1;
 
 						//image.pixels[i][j] = (image.bg_color * transmission + obj->color * (1 - transmission)) * visibility;
-						image.pixels[i][j] = (image.bg_color * transmission + result) * visibility;
+						image.pixels[i][j] = (image.bg_color * transmission + result);
 						//cout << "color: " << image.pixels[i][j];
 					}
 				}
 			}
 		}
 	}
-	
+
+	auto end = std::chrono::steady_clock::now();
+	auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+	std::cout << "Time taken: " << duration.count() << " milliseconds" << std::endl;
 }
 
 

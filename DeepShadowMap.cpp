@@ -75,8 +75,6 @@ float DeepShadowMap::getVisibilityFromWorldPos(Vector3 WorldPos)
     Vector3 intersectionPoint, normal;
     mapRectangle.intersect(rayToMap, intersectionPoint, normal);
 
-    //cout << "Intersection Point : " << intersectionPoint << "\n";
-
     //get the local coordinates with a projection
     Vector3 edge1 = mapRectangle.point2 - mapRectangle.point1;
     Vector3 edge2 = mapRectangle.point3 - mapRectangle.point1;
@@ -84,8 +82,6 @@ float DeepShadowMap::getVisibilityFromWorldPos(Vector3 WorldPos)
 
     float localCoordinateX = (interPointDir * edge1) / (edge1 * edge1);
     float localCoordinateY = (interPointDir * edge2) / (edge2 * edge2);
-
-    //cout << "local coordinates (" << localCoordinateX << ", " << localCoordinateY << ")\n";
 
     //get cell Index
     int cellIndexI = localCoordinateX * mapResolution;
@@ -96,13 +92,6 @@ float DeepShadowMap::getVisibilityFromWorldPos(Vector3 WorldPos)
     if (cellIndexI > mapResolution || cellIndexI < 0 || cellIndexJ > mapResolution || cellIndexJ < 0) return 1;
 
     float depth = (WorldPos - position).length();
-
-    
-    if (cellIndexI == 5 && cellIndexJ == 5)
-    {
-        cout << "cell coordinates (" << cellIndexI << ", " << cellIndexJ << ")" << " depth: " << depth << "\n";
-        cout << "visbility : " << shadowCells[cellIndexI * mapResolution + cellIndexJ].getVisibility(depth) << "\n";
-    }
     
     return shadowCells[cellIndexI * mapResolution + cellIndexJ].getVisibility(depth);
 }

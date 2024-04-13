@@ -43,7 +43,7 @@ void ShadowCell::CalculateVisibilityFunction()
 			//transmittance += getSurfaceTransmittanceValue(functionIdex, depth);
 			transmittance += getTransmittanceValue(functionIdex, depth);
 		}
-		visibilityFunction.push_back(transmittance / sampleNumber);
+		visibilityFunction.push_back(transmittance / sampleNumber); 
 	}
 	
 	/*
@@ -55,7 +55,7 @@ void ShadowCell::CalculateVisibilityFunction()
 	cout << "]\n";
 	*/
 	
-	visibility_function_compression(0.05); 
+	//visibility_function_compression(0.05); 
 
 }
 

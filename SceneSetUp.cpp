@@ -192,6 +192,7 @@ void SceneSetUp::render3BoxSceneSetUp()
     if(useDeepShadowMap)
     {
         DeepShadowMap* deepShadowMap = new DeepShadowMap(objects, 1, light1->position, Vector3(-2, 0, 11), Vector3(0, 1, 0), 1, 1, deepShadowMapRes, deepShadowMapSample);
+
         scene.renderWithShadowMap(image, deepShadowMap);
         delete deepShadowMap;
     }
@@ -277,27 +278,13 @@ void SceneSetUp::volumetricObjectTestScene()
     {
         DeepShadowMap* deepShadowMap = new DeepShadowMap(objects, 1, light1->position, Vector3(0, 0, 0), Vector3(0, 1, 0), 2, 2, deepShadowMapRes, deepShadowMapSample);
 
-        cout << "rendering:";
-        auto start = std::chrono::steady_clock::now();
-
         scene.renderWithShadowMap(image, deepShadowMap);
         //cout << "visibility: " << deepShadowMap->shadowCells[(14) * deepShadowMapRes + 28].getVisibility(3.5);
         delete deepShadowMap;
-
-        auto end = std::chrono::steady_clock::now();
-        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-        std::cout << "Time taken: " << duration.count() << " milliseconds" << std::endl;
     }
     else
     {
-        cout << "rendering:";
-        auto start = std::chrono::steady_clock::now();
-
-        scene.render(image);
-
-        auto end = std::chrono::steady_clock::now();
-        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-        std::cout << "Time taken: " << duration.count() << " milliseconds" << std::endl;
+        scene.render(image);   
     }
 
     image.write("render.ppm");
@@ -350,7 +337,7 @@ void SceneSetUp::box_volumetric_interraction()
     objects.push_back(rect2);
 
     //volumetric object
-    Sphere* volumetricSphere = new Sphere(Vector3(2, 0, 11), 1.5, Vector3(255, 255, 255), MaterialParameters(1, 0.2, 0.2, 0.2, 4, 0.5, MathHelper::perlin_noise));
+    Sphere* volumetricSphere = new Sphere(Vector3(2, 0, 11), 1.5, Vector3(255, 255, 255), MaterialParameters(1, 0.2, 0.2, 0.2, 4, 0.5, MathHelper::abs_perlin_noise));
     volumetricSphere->is_volumetric_object = true;
 
     objects.push_back(volumetricSphere);

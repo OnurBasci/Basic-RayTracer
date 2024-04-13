@@ -83,8 +83,8 @@ int p[512] = {
     222, 114,  67,  29,  24,  72, 243, 141, 128, 195,  78,  66, 215,  61, 156, 180
 };
 
-float scaling_factor = 4;
-float noise_power = 0.2;
+float scaling_factor = 2;
+float noise_power = 1;
 
 double MathHelper::fade(double t) { return t * t * t * (t * (t * 6 - 15) + 10); }
 double MathHelper::lerp(double t, double a, double b) { return a + t * (b - a); }
@@ -122,8 +122,10 @@ double MathHelper::perlin_noise(Vector3 pos)
                 grad(p[BB + 1], pos.x - 1, pos.y - 1, pos.z - 1))));
 
     //normalize it between 0 and 1
-    return ((noise + 1) / 2)*noise_power;
+    return noise * noise_power;
 }
+
+double MathHelper::perlin_noise_normalized(Vector3 pos) { return ((perlin_noise(pos) + 1) / 2); };
 
 double MathHelper::abs_perlin_noise(Vector3 pos) {return std::abs(perlin_noise(pos));}
 

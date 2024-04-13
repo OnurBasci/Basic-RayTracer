@@ -22,5 +22,6 @@ public:
     static double grad(int hash, double x, double y, double z);
     static double perlin_noise(Vector3 pos);
     static double abs_perlin_noise(Vector3 pos);
+    static double perlin_noise_normalized(Vector3 pos);
     static double non_zero_perlin_noise(Vector3 pos);
 };

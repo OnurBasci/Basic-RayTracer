@@ -36,8 +36,8 @@ int main(void)
     //sceneRenderer.render3BoxSceneSetUp();
     //sceneRenderer.renderCylinderScene();
     //sceneRenderer.volumetricObjectTestScene();
-    //sceneRenderer.box_volumetric_interraction();
-    sceneRenderer.cylinder_box_interaction();
+    sceneRenderer.box_volumetric_interraction();
+    //sceneRenderer.cylinder_box_interaction();
 
     return 0;
 }
