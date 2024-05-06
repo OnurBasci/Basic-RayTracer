@@ -136,7 +136,6 @@
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Cylinder.cpp" />
     <ClCompile Include="DeepShadowMap.cpp" />
-    <ClCompile Include="glad.c" />
     <ClCompile Include="Image.cpp" />
     <ClCompile Include="Light.cpp" />
     <ClCompile Include="MathHelper.cpp" />

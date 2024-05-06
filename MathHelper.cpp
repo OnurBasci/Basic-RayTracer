@@ -46,6 +46,16 @@ float MathHelper::constantDesnity(Vector3 point)
     return 1;
 }
 
+Vector3 MathHelper::clamp_vector(Vector3 vect)
+{
+    Vector3 clamped_vec;
+    clamped_vec.x = std::min(255.0f, std::max(0.0f, vect.x));
+    clamped_vec.y = std::min(255.0f, std::max(0.0f, vect.y));
+    clamped_vec.z = std::min(255.0f, std::max(0.0f, vect.z));
+    
+    return clamped_vec;
+}
+
 //Perlin noise 
 
 int p[512] = {

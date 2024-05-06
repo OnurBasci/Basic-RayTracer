@@ -16,6 +16,8 @@ public:
     //density functions
     static float constantDesnity(Vector3 p);
 
+    static Vector3 clamp_vector(Vector3 vect);
+
     //perlin noise
     static double fade(double t);
     static double lerp(double t, double a, double b);

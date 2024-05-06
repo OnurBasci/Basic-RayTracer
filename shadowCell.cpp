@@ -55,7 +55,7 @@ void ShadowCell::CalculateVisibilityFunction()
 	cout << "]\n";
 	*/
 	
-	//visibility_function_compression(0.05); 
+	//visibility_function_compression(0.05);
 
 }
 
@@ -194,11 +194,11 @@ void ShadowCell::CalculateVolumeTransmittanceFunctionFromARay(int sampleIndex, R
 		if (obj->is_volumetric_object && obj->volumeIntersect(ray, t0, t1))
 		{
 			//get the correct step size 
-			int num_sample = std::ceil((t1 - t0) / step_size);
+			int num_sample = std::ceil((t1 - t0) / step_size); 
 			step_size = (t1 - t0)/num_sample;
 			
 			//Ray marching to find the extinction values
-			for (int i = 0; i < num_sample; i++)
+			for (int i = 0; i < num_sample; i++) 
 			{
 				float t = t0 + step_size * (i + 0.5);
 				Vector3 sample = ray.center + ray.direction * t;

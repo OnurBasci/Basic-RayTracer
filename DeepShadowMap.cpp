@@ -43,6 +43,7 @@ DeepShadowMap::DeepShadowMap(list<Object*> objects,  double _focal_length, const
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
     std::cout << "Time taken: " << duration.count() << " milliseconds" << std::endl;
 
+    float visibility_function_size_sum = 0;
     cout << "Visibility function calculation :";
     start = std::chrono::steady_clock::now();
 
@@ -51,11 +52,14 @@ DeepShadowMap::DeepShadowMap(list<Object*> objects,  double _focal_length, const
     {
         //cout << " current pixel:" << i;
         shadowCells[i].CalculateVisibilityFunction(); 
+        visibility_function_size_sum += shadowCells[i].visibilityFunction.size();
     }
 
     end = std::chrono::steady_clock::now();
     duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
     std::cout << "Time taken: " << duration.count() << " milliseconds" << std::endl;
+
+    std::cout << "\n mean visibility function size " << visibility_function_size_sum / (mapResolution * mapResolution) << "\n";
 
     //Calculate a virtual rectangle object to help us find the intersection on the shadow map
     Vector3 p0 = viewport_upper_left;
@@ -133,10 +137,8 @@ float DeepShadowMap::getAveragesVisibilityFromWorldPos(Vector3 WorldPos)
 
     //create a kernel
     int kernelSize = 5;
-    std::vector<std::vector<double>> kernel = MathHelper::generateGaussianKernel(kernelSize, 5);
-    //std::vector<std::vector<double>> kernel = MathHelper::generateUniformKernel(kernelSize);
+    std::vector<std::vector<double>> kernel = MathHelper::generateGaussianKernel(kernelSize,1);
 
-    //cout << "cell calculation(" << cellIndexI << "," << cellIndexJ << "): \n";
     for (int i = -kernelSize/2; i <= kernelSize/2; i++)
     {
         if (cellIndexI + i < 0 || cellIndexI + i >= mapResolution) continue;

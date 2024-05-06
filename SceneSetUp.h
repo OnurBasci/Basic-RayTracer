@@ -12,11 +12,12 @@ public:
 	float numPixelX, numPixelY;
 	float deepShadowMapRes, deepShadowMapSample;
 	bool useDeepShadowMap;
+	bool self_shadowing;
 	list<Object*> objects;
 	list<Light*> lights;
 
 	SceneSetUp();
-	SceneSetUp(float numPx, float numPy, float dsmRes, float dsmSampleNum, bool useDsm);
+	SceneSetUp(float numPx, float numPy, float dsmRes, float dsmSampleNum, bool useDsm, bool self_shadowing);
 	~SceneSetUp();
 
 	void render3BoxSceneSetUp();

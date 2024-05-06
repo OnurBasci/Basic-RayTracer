@@ -51,8 +51,6 @@ void Scene::render(Image& image)
 
 			//cout << ray.direction << " ";
 
-			cout << "pixel (" << i << "," << j << ")\n";
-
 			//Check intersection for all objects
 			for (Object* obj : objects) {
 
@@ -127,7 +125,7 @@ void Scene::render(Image& image)
 }
 
 
-void Scene::renderWithShadowMap(Image& image, DeepShadowMap* shadowMap)
+void Scene::renderWithShadowMap(Image& image, DeepShadowMap* shadowMap, bool self_shadowing)
 {
 	cout << "rendering:";
 	auto start = std::chrono::steady_clock::now();
@@ -194,7 +192,7 @@ void Scene::renderWithShadowMap(Image& image, DeepShadowMap* shadowMap)
 
 						intensity_sum = std::max(0.0f, std::min(1.0f, intensity_sum));
 
-						image.pixels[i][j] = obj->color * intensity_sum * visibility;
+						image.pixels[i][j] = (obj->color * intensity_sum * visibility);
 					}
 					//Volume Object intersection
 					if (obj->is_volumetric_object && obj->volumeIntersect(ray, t0, t1))
@@ -218,43 +216,42 @@ void Scene::renderWithShadowMap(Image& image, DeepShadowMap* shadowMap)
 							
 							transmission *= exp(-step_size * obj->m_params.density(sample) * sigma_t);
 							
-							
-							// in scattering
-							
-							light_dir = shadowMap->position - sample;
-							Ray to_light_Ray(sample, light_dir);
-
 							//In scattering with ray marching (You can uncomment this to compare shadows)
-							/*float t0_light, t1_light;
-							if (obj->volumeIntersect(to_light_Ray, t0_light, t1_light)) {
+							if (!self_shadowing)
+							{
+								light_dir = shadowMap->position - sample;
+								Ray to_light_Ray(sample, light_dir);
+								float t0_light, t1_light;
+								if (obj->volumeIntersect(to_light_Ray, t0_light, t1_light)) {
 
-								size_t num_steps_light = std::ceil(t1_light / step_size);
-								float stide_light = t1_light / num_steps_light;
+									size_t num_steps_light = std::ceil(t1_light / step_size);
+									float stide_light = t1_light / num_steps_light;
 
-								float tau = 0;
-								// Ray-march along the light ray. Store the density values in the tau variable.
-								for (size_t nl = 0; nl < num_steps_light; ++nl) {
-									float t_light = stide_light * (nl + 0.5);
-									Vector3 light_sample_pos = sample + light_dir * t_light;
-									tau += obj->m_params.density(light_sample_pos);
+									float tau = 0;
+									// Ray-march along the light ray. Store the density values in the tau variable.
+									for (size_t nl = 0; nl < num_steps_light; ++nl) {
+										float t_light = stide_light * (nl + 0.5);
+										Vector3 light_sample_pos = sample + light_dir * t_light;
+										tau += obj->m_params.density(light_sample_pos);
+									}
+									float light_ray_att = exp(-tau * stide_light * sigma_t);
+									//float light_ray_att = shadowMap->getVisibilityFromWorldPos(sample);
+									//cout << " " << light_ray_att << " ";
+
+									result = result + lightColor * light_ray_att * obj->m_params.sigma_s * transmission * step_size * obj->m_params.density(sample);
 								}
-								float light_ray_att = exp(-tau * stide_light * sigma_t);
-
-								result = result + lightColor * light_ray_att * obj->m_params.sigma_s * transmission * step_size * obj->m_params.density(sample);
-							}*/
-
-							//self shadowing with visibility function
-							float light_ray_att = shadowMap->getVisibilityFromWorldPos(sample);
-							result = result + lightColor * light_ray_att * obj->m_params.sigma_s * transmission * step_size * obj->m_params.density(sample);
-							
-							//cout << " " << light_ray_att << " ";
-							//result = lightColor * light_ray_att * obj->m_params.sigma_s * transmission;
+							}
+							else
+							{
+								//self shadowing with visibility function
+								float light_ray_att = shadowMap->getVisibilityFromWorldPos(sample);
+								result = result + lightColor * light_ray_att * transmission * step_size * obj->m_params.density(sample) * 4;
+							}
 						}
-						
-						//visibility = shadowMap->getAveragesVisibilityFromWorldPos(intersection_point);
 
-						//image.pixels[i][j] = (image.bg_color * transmission + obj->color * (1 - transmission)) * visibility;
-						image.pixels[i][j] = (image.bg_color * transmission + result);
+						Vector3 res = (image.bg_color * transmission + result);
+
+						image.pixels[i][j] = MathHelper::clamp_vector(res);
 						//cout << "color: " << image.pixels[i][j];
 					}
 				}

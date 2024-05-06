@@ -16,13 +16,14 @@
 #include"Cylinder.h"
 #include<chrono>
 
-SceneSetUp::SceneSetUp(float numPx, float numPy, float dsmRes, float dsmSampleNum, bool useDsm)
+SceneSetUp::SceneSetUp(float numPx, float numPy, float dsmRes, float dsmSampleNum, bool useDsm, bool self_shadowing)
 {
 	this->numPixelX = numPx;
 	this->numPixelY = numPy;
 	this->deepShadowMapRes = dsmRes;
 	this->deepShadowMapSample = dsmSampleNum;
     this->useDeepShadowMap = useDsm;
+    this->self_shadowing = self_shadowing;
 }
 
 SceneSetUp::SceneSetUp()
@@ -32,6 +33,7 @@ SceneSetUp::SceneSetUp()
 	this->deepShadowMapRes = 64;
 	this->deepShadowMapSample = 16;
     this->useDeepShadowMap = false;
+    this->self_shadowing = false;
 }
 
 void SceneSetUp::render3BoxSceneSetUp()
@@ -193,7 +195,7 @@ void SceneSetUp::render3BoxSceneSetUp()
     {
         DeepShadowMap* deepShadowMap = new DeepShadowMap(objects, 1, light1->position, Vector3(-2, 0, 11), Vector3(0, 1, 0), 1, 1, deepShadowMapRes, deepShadowMapSample);
 
-        scene.renderWithShadowMap(image, deepShadowMap);
+        scene.renderWithShadowMap(image, deepShadowMap, self_shadowing);
         delete deepShadowMap;
     }
     else
@@ -219,15 +221,10 @@ void SceneSetUp::renderCylinderScene()
 
     //SET THE OBJECTS
 
-    for (float i = 0; i < 120; i++)
+    for (float i = 0; i < 30; i++)
     {
         objects.push_back(new Cylinder(Vector3(((static_cast<float>(rand()) / RAND_MAX)-0.5), 0, ((static_cast<float>(rand()) / RAND_MAX) - 0.5) * 2), 0.01, 10, Vector3(255, 255, 0), MaterialParameters(0.5,0.5,1)));
     }
-
-    //objects.push_back(new Cylinder(Vector3(0, 0, 0), 0.05, Vector3(255,255,0), MaterialParameters()));
-
-    //objects.push_back(new Sphere(Vector3(0, 0, 0), 1, Vector3(0, 255, 0), MaterialParameters(1,0.5)));
-    //objects.push_back(new Sphere(Vector3(2, -1, 7), 4, Vector3(255, 0, 0), MaterialParameters(20,0.4)));
 
     //Render the scene
     Image image(numPixelX, numPixelY);
@@ -237,7 +234,7 @@ void SceneSetUp::renderCylinderScene()
     if (useDeepShadowMap)
     {
         DeepShadowMap* deepShadowMap = new DeepShadowMap(objects, 1, light1->position, Vector3(0, 0, 0), Vector3(0, 1, 0), 2, 2, deepShadowMapRes, deepShadowMapSample);
-        scene.renderWithShadowMap(image, deepShadowMap);
+        scene.renderWithShadowMap(image, deepShadowMap, self_shadowing);
         delete deepShadowMap;
     }
     else
@@ -251,12 +248,12 @@ void SceneSetUp::renderCylinderScene()
 void SceneSetUp::volumetricObjectTestScene()
 {
     //Set Camera and Lightning
-    Camera camera(1, Vector3(0, 0, -4), Vector3(0, 0, 1), Vector3(-1, 0, 0), 1, 1, numPixelX, numPixelY);
+    Camera camera(1, Vector3(0, 0, -8), Vector3(0, 0, 1), Vector3(-1, 0, 0), 1, 1, numPixelX, numPixelY);
 
     PointLight* light1 = new PointLight(Vector3(4, 0, 0), Vector3(255, 255, 255), 20);
     lights.push_back(light1);
 
-    Sphere* volumetricSphere = new Sphere(Vector3(0, 0, 0), 1, Vector3(255, 255, 255), MaterialParameters(1, 0.2, 0.2, 0.2, 4, 0.5, MathHelper::perlin_noise));
+    Sphere* volumetricSphere = new Sphere(Vector3(0, 0, 0), 2.5, Vector3(255, 255, 255), MaterialParameters(1, 0.2, 0.2, 0.2, 4, 1, MathHelper::abs_perlin_noise));
     volumetricSphere->is_volumetric_object = true;
 
     //add floor
@@ -278,7 +275,7 @@ void SceneSetUp::volumetricObjectTestScene()
     {
         DeepShadowMap* deepShadowMap = new DeepShadowMap(objects, 1, light1->position, Vector3(0, 0, 0), Vector3(0, 1, 0), 2, 2, deepShadowMapRes, deepShadowMapSample);
 
-        scene.renderWithShadowMap(image, deepShadowMap);
+        scene.renderWithShadowMap(image, deepShadowMap, self_shadowing);
         //cout << "visibility: " << deepShadowMap->shadowCells[(14) * deepShadowMapRes + 28].getVisibility(3.5);
         delete deepShadowMap;
     }
@@ -350,7 +347,7 @@ void SceneSetUp::box_volumetric_interraction()
     if (useDeepShadowMap)
     {
         DeepShadowMap* deepShadowMap = new DeepShadowMap(objects, 1, light1->position, Vector3(-2, 0, 11), Vector3(0, 1, 0), 1, 1, deepShadowMapRes, deepShadowMapSample);
-        scene.renderWithShadowMap(image, deepShadowMap);
+        scene.renderWithShadowMap(image, deepShadowMap, self_shadowing);
         delete deepShadowMap;
     }
     else
@@ -426,7 +423,7 @@ void SceneSetUp::cylinder_box_interaction()
     if (useDeepShadowMap)
     {
         DeepShadowMap* deepShadowMap = new DeepShadowMap(objects, 1, light1->position, Vector3(-2, 0, 11), Vector3(0, 1, 0), 1, 1, deepShadowMapRes, deepShadowMapSample);
-        scene.renderWithShadowMap(image, deepShadowMap);
+        scene.renderWithShadowMap(image, deepShadowMap, self_shadowing);
         delete deepShadowMap;
     }
     else

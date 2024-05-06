@@ -20,5 +20,5 @@ public:
 	Scene(list<Object*> objects, list<Light*> lights);
 
 	void render(Image& image);
-	void renderWithShadowMap(Image& image, DeepShadowMap* shadowMap);
+	void renderWithShadowMap(Image& image, DeepShadowMap* shadowMap, bool self_shadowing = true);
 };
